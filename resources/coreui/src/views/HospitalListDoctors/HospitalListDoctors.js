@@ -174,6 +174,7 @@ class HospitalListDoctors extends Component {
       chat_btn_status: false,
 
       status: "",
+      login_as: "",
       
     };
     this.handlePageChangeDoctors=this.handlePageChangeDoctors.bind(this);
@@ -203,33 +204,40 @@ class HospitalListDoctors extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/hospital/list_doctors/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      // console.log("ROI Cartoon");
-      // console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        // console.log("doctors_list");
-        // console.log(typeof(json.data.data.data));
-        // console.log(json.data.data.data);
-        this.setState({ 
-          doctors_list: json.data.data.data,
-          itemsCountPerPage_doctors: json.data.data.per_page,
-          totalItemsCount_doctors: json.data.data.total,
-          activePage_doctors: json.data.data.current_page
-        });
-      } else {
-        
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "hospital"){
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    }else{
+      axios.get(`/api/hospital/list_doctors/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("doctors_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            doctors_list: json.data.data.data,
+            itemsCountPerPage_doctors: json.data.data.per_page,
+            totalItemsCount_doctors: json.data.data.total,
+            activePage_doctors: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   // Pagination handler
@@ -252,6 +260,29 @@ class HospitalListDoctors extends Component {
         
       }
     })
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/hospital/get/`+this.state.id+`?token=${this.state.token}`)
+    .then(response => {
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+      } else {
+        
+      }
+    })
+    .catch(error => {
+    });
   }
 
   toggleViewDoctorPatient = () => {
@@ -577,14 +608,14 @@ class HospitalListDoctors extends Component {
 
           appointment_status: json.data.data.status,
         }, this.toggleViewAppointment());
-        if(this.state.appointment_status == 1){
+        if(this.state.appointment_status == 2){
           this.setState({ 
             appointment_status: 'Open',
             appointment_status_color: 'success',
             chat_btn_status: false,
           })
         }
-        if(this.state.appointment_status == 2){
+        if(this.state.appointment_status == 3){
           this.setState({ 
             appointment_status: 'Close',
             appointment_status_color: 'danger',
@@ -798,7 +829,7 @@ class HospitalListDoctors extends Component {
           <ModalBody>
             <Card>
               <CardBody style={{float: "right"}}>
-                <ExternalLink href="https://live.cammedics.com/" style={{float: "right"}}>
+                <ExternalLink href="/#/live_chat" style={{float: "right"}}>
                   <Button  style={{backgroundColor: "#2167ac", color: "#ffffff"}}>Start a Video Chat</Button>
                 </ExternalLink>
               </CardBody>
@@ -829,9 +860,9 @@ class HospitalListDoctors extends Component {
                         this.state.currentPage = ((this.state.activePage * 10) - (10 - 1)),
                         // ////////////////////////////////////////////////////////////
                         this.state.applications_list.map(application=>{
-                          if(application.status == 1){
+                          if(application.status == 2){
                             this.state.status = <Badge color="success">Open</Badge>;
-                          }else{
+                          }else if(application.status == 3){
                             this.state.status = <Badge color="danger">Closed</Badge>;
                           }
                           const patient_id  = application.patient_id;

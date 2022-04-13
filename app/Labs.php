@@ -39,6 +39,7 @@ class Labs extends Authenticatable implements JWTSubject
         'bank_account_number', 
         'logo',
         'medical_license',
+        'associate',
         'status'
     ];
 

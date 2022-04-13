@@ -184,66 +184,72 @@ class DocProfile extends Component {
       med_lic_uploaded:  "",
       // to show n hide others gender
       show:false,
-      countries:[]
+      countries:[],
+      login_as: "",
     };
   }
 
   componentDidMount()
   { 
-    axios.get(`/api/doc/get/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      // console.log("It came back");
-      // console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        // console.log("It came back 2");
-        // console.log(json.data.data);
-        // console.log(json.data.data.bank_name);
-        // alert(json.data.data.medical_certificate);
-        this.setState({ 
-          first_name: json.data.data.first_name,
-          last_name: json.data.data.last_name,
-          middle_name: json.data.data.middle_name,
-          username: json.data.data.username,
-          email: json.data.data.email,
-          zip_code: json.data.data.zip_code,
-          telephone: json.data.data.telephone,
-          gender: json.data.data.gender,
-          gender_others: json.data.data.gender_others,
-          dob: json.data.data.dob,
-          nationality: json.data.data.nationality,
-          country_of_residence: json.data.data.country_of_residence,
-          district_province_state: json.data.data.district_province_state,
-          contact_address: json.data.data.contact_address,
-          area_of_specialization: json.data.data.area_of_specialization,
-          available_on_appointment: json.data.data.available_on_appointment,
-          available_on_emergency: json.data.data.available_on_emergency,
-          available_by_time: json.data.data.available_by_time,
-          
-          profile_picture: json.data.data.profile_picture,
-          medical_certificate: json.data.data.medical_certificate,
-          medical_license: json.data.data.medical_license,
-          // ///////////////////////////////////////////////////////
-          consultation_fee: json.data.data.consultation_fee,
-          bank_name: json.data.data.bank_name,
-          bank_account_name: json.data.data.bank_account_name,
-          bank_account_number: json.data.data.bank_account_number,
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "doctor"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/doc/get/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("It came back");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("It came back 2");
+          // console.log(json.data.data);
+          // console.log(json.data.data.bank_name);
+          // alert(json.data.data.medical_certificate);
+          this.setState({ 
+            first_name: json.data.data.first_name,
+            last_name: json.data.data.last_name,
+            middle_name: json.data.data.middle_name,
+            username: json.data.data.username,
+            email: json.data.data.email,
+            zip_code: json.data.data.zip_code,
+            telephone: json.data.data.telephone,
+            gender: json.data.data.gender,
+            gender_others: json.data.data.gender_others,
+            dob: json.data.data.dob,
+            nationality: json.data.data.nationality,
+            country_of_residence: json.data.data.country_of_residence,
+            district_province_state: json.data.data.district_province_state,
+            contact_address: json.data.data.contact_address,
+            area_of_specialization: json.data.data.area_of_specialization,
+            available_on_appointment: json.data.data.available_on_appointment,
+            available_on_emergency: json.data.data.available_on_emergency,
+            available_by_time: json.data.data.available_by_time,
+            
+            profile_picture: json.data.data.profile_picture,
+            medical_certificate: json.data.data.medical_certificate,
+            medical_license: json.data.data.medical_license,
+            // ///////////////////////////////////////////////////////
+            consultation_fee: json.data.data.consultation_fee,
+            bank_name: json.data.data.bank_name,
+            bank_account_name: json.data.data.bank_account_name,
+            bank_account_number: json.data.data.bank_account_number,
 
-          status: json.data.data.status,
-          // check gender if 4(others), display the other value
-        }, this.getCountries);
-      } else {
+            status: json.data.data.status,
+            // check gender if 4(others), display the other value
+          }, this.getCountries);
+        } else {
 
-      };
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      // console.error(`An Error Occuredd! ${error}`);
-      
-    });
+        };
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   getCountries = () => {

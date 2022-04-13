@@ -1,9 +1,13 @@
 <?php
-
+   // //////////////// SEARCH FOR THIS ///////////////////////////////
  return[
-    'file_path1' => "/images/uploads/",
-    'file_path2' => "/images/uploads/",
-   //  online file path
+ 	// ////////////// Files //////////////////////////////////////////////
    //  'file_path1' => "/images/uploads/",
-   //  'file_path2' => "/dashboard/public/images/uploads/",
+   //  'file_path2' => "/images/uploads/",
+   //  online file path
+    'file_path1' => "/images/uploads/",
+    'file_path2' => "/dashboard/public/images/uploads/",
+    // /////////////////////////// LINK ////////////////////////////////////////
+    // 'link1' => "http://localhost:8000/",
+    'link1' => "https://dashboard.cammedics.com/",
  ];

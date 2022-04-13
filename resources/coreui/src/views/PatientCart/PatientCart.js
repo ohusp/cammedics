@@ -6,6 +6,16 @@ import axios, { post } from 'axios';
 import SweetAlert from 'sweetalert2-react';
 
 import { PayPalButton } from "react-paypal-button-v2";
+// ////////// LOADER /////////////////////////////////
+import { css } from "@emotion/core";
+import ScaleLoader from "react-spinners/ScaleLoader";
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
+// ///////////////////////////////////////////////////
 
 import {
   Badge,
@@ -53,9 +63,8 @@ class PatientCart extends Component {
 
 
     // /////////////////////////////////////////////////////////////////
-
-    // this.onSubmitBookAppointment = this.onSubmitBookAppointment.bind(this);
     this.onCheckout = this.onCheckout.bind(this);
+    this.onSubmitFlutterPay     = this.onSubmitFlutterPay.bind(this);
 
     this.state = {
       token: localStorage["appState"]
@@ -67,6 +76,12 @@ class PatientCart extends Component {
       username: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.username
         : "",
+      email: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.email
+        : "",
+      telephone: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.telephone
+        : "",
       first_name: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.first_name
         : "",
@@ -75,7 +90,7 @@ class PatientCart extends Component {
         : "",
       middle_name: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.middle_name
-        : "",      
+        : "",    
 
       status: "",
       created_at: localStorage["appState"]
@@ -101,6 +116,11 @@ class PatientCart extends Component {
       snumber: 1,
       items_list: [],
       pharm_id: "",
+      // /////// LOADER ////////////
+      showDiv: "none",
+      loading: false,
+      // //////////////////////////
+      login_as: "",
     };
     // this.handlePageChange=this.handlePageChange.bind(this);
 
@@ -108,6 +128,103 @@ class PatientCart extends Component {
 
   // fetch data from db
   componentDidMount()
+  { 
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "patient"){
+      hashHistory.push('/premontessori');
+    }else{
+      try {
+        // get the url param
+        var url_string = window.location.href;
+        var transaction_details = url_string.split('?')[1];
+        var transaction_details = transaction_details.split('&');
+        var transaction_status  = transaction_details[0];
+        var transaction_ref     = transaction_details[1];
+        // if successful, verify again before displaying success message for flutter, else display error message
+        if(transaction_status == "success"){
+          const payment_data ={
+            transaction_id : transaction_ref, 
+            email : this.state.email,
+          }
+          axios.post(`/flutterwave_checkout_verify`, payment_data)
+          .then(response => {
+            // console.log(response);
+            return response;
+          })
+          .then(json => {
+            this.getCart()
+            if (json.data.success) {
+              // console.log(json.data.data)
+              this.setState({ 
+                successMessage: "Payment successful",
+                showSuccess: true
+              });
+            } else{
+              this.setState({ 
+                errorMessage: json.data.data,
+                showError: true
+              });
+            }
+          })
+          .catch(error => {
+            // console.error(`An Error Occuredd! ${error}`);
+          });
+        }else if(transaction_status == "Order-failed"){
+          this.setState({ 
+            errorMessage: "Transaction error. Order failed",
+            showError: true
+          });
+        }else if(transaction_status == "Fraud"){
+          this.setState({ 
+            errorMessage: "Transaction error. Fraud transaction detected",
+            showError: true
+          });
+        }else if(transaction_status == "No-transaction"){
+          this.setState({ 
+            errorMessage: "No transaction was found",
+            showError: true
+          });
+        }
+        else{
+          this.setState({ 
+            errorMessage: transaction_status,
+            showError: true
+          });
+        }
+      } catch (error) {
+        this.getCart()
+      }
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
+    .then(response => {
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+        
+      } else {
+        
+      }
+    })
+    .catch(error => {
+      
+    });
+  }
+
+  getCart()
   {
     axios.get(`/api/patient/product_in_cart/get_all/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
@@ -129,7 +246,7 @@ class PatientCart extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -165,10 +282,38 @@ class PatientCart extends Component {
       });
       
     });
+  }
 
-    // alert("item_id: "+ item_id1);
-    // alert("qty: "+ qty);
-    // this.setState({   }, this.componentDidMount)
+  remove(item_id){
+    // const item_id1 = item_id;
+    // const qty   = e.target.value;
+
+    const product_data ={
+      item_id1 : item_id, 
+    }
+    axios.post(`/api/patient/product/delete/`+this.state.id+`?token=${this.state.token}`, product_data)
+    .then(response => {
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        this.setState({
+          // successMessage: json.data.data,
+          // showSuccess: true
+        }, this.componentDidMount);
+      } else{
+        this.setState({
+          successMessage: "Product removal failed",
+          showError: true
+        });
+      }
+    })
+    .catch(error => {
+      this.setState({
+        showError: true
+      });
+      
+    });
   }
 
   onCheckout()
@@ -180,6 +325,7 @@ class PatientCart extends Component {
     })
     .then(json => {
       if (json.data.success) {
+        // console.log(json.data)
         // const total_fee = parseInt(json.data.port_fee) + parseInt(json.data.country_handling_fee);
         this.setState({ 
           cart_total: json.data.cart_total,
@@ -193,24 +339,22 @@ class PatientCart extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
 
   }
 
   onSubmitBookAppointment2()
-  {
-      // e.preventDefault();
-      // alert("here");
-      this.setState({ 
+  { 
+      // ////////////// LOADER ////////////
+      this.setState({
         successMessage: "Payment successful",
         showSuccess: true,
-      }, this.onSubmitBookAppointment3);
-  }
-
-  onSubmitBookAppointment3()
-  {
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
       const phurchase_data ={
         // /////////////////////////////////////////////
         billing_create_time: this.state.billing_create_time,
@@ -229,6 +373,12 @@ class PatientCart extends Component {
         return response;
       }, this.toggleMakePayment("close", "close"))
       .then(json => {
+        // ////////// LOADER //////////////
+          this.setState({
+            showDiv: "none",
+            loading: false,
+          });
+        // ///////////////////////////////
         if (json.data.success) {
           this.setState({
             successMessage: json.data.data,
@@ -249,7 +399,49 @@ class PatientCart extends Component {
       });
   }
 
-  
+  onSubmitFlutterPay(e)
+  {
+    e.preventDefault();
+    const payment_data ={
+      amount : this.state.total_fee, 
+      cart_total : this.state.cart_total,
+      country_handling_fee : this.state.handling_fee,
+      username : this.state.username,
+      email : this.state.email, 
+      name : this.state.first_name+" "+this.state.last_name,  
+      phone_number : this.state.telephone, 
+      description : "Product purchase"
+    }
+    // axios.post(`/flutterwave_pay/appointment`, payment_data)
+    axios.post(`/patient/product/checkout/flutterwave_pay/`+this.state.pharm_id+'/'+this.state.id+`?token=${this.state.token}`, payment_data)
+    .then(response => {
+      // console.log(response);
+      return response;
+    })
+    .then(json => {
+      // console.log(json.data.success)
+      if (json.data.success) {
+        // console.log(json.data.data)
+        // this.setState({
+        //   showSuccess: true
+        // });
+        // var win = window.open(json.data.data, '_blank');
+        var win = window.open(json.data.data);
+        win.focus();
+      } else{
+        this.setState({
+          errorMessage: json.data.data,
+          showError: true
+        });
+      }
+    })
+    .catch(error => {
+      // redirect user to previous page if user does not have autorization to the page
+      // hashHistory.push('/premontessori');
+      // console.error(`An Error Occuredd! ${error}`);
+      
+    });
+  }
 
   // /////////////// Make payment
   toggleMakePayment() {
@@ -278,6 +470,23 @@ class PatientCart extends Component {
             {/* ///////// PORTS LIST TABLE ///////////// */}
             <Col xs="12" lg="12">
               <Card>
+                {/* // ////////// LOADER ////////////// */}
+                <div className="sweet-loading" style={{position: "fixed", height:"100%", width:"100%", display: this.state.showDiv, top:"50%", left:"50%",zIndex:"1500"}}>
+                      <div style={{position: "absolute", backgroundColor: "#ffffffcf",width:"100px",padding:"15px",borderRadius:"20px" }}>
+                        <ScaleLoader
+                          css={override}
+                          height={50}
+                          width={3}
+                          radius={2}
+                          margin={5}
+                          color={"#2167ac"}
+                          loading={this.state.loading}
+                        />
+                        <h6 style={{color: "#ca333a"}}>Loading...</h6>
+                      </div>
+                    </div>
+                  {/* // ///////////////// ////////////// */}
+                  
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> Cart Items
                   {/* <span style={{float: "right"}}>
@@ -344,7 +553,7 @@ class PatientCart extends Component {
             </Col>
         </Row>
 
-        {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+        {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
           <Modal isOpen={this.state.primaryMakePayment} className={'modal-primary ' + this.props.className} style={{maxWidth: "1000px"}}>
             <ModalHeader toggle={() => this.toggleMakePayment("close", "close")}>Make Payment</ModalHeader>
             <ModalBody>
@@ -369,34 +578,38 @@ class PatientCart extends Component {
                         </ListGroup><br></br>
                         <p style={{marginBottom: "25px"}}>You can pay with your paypal account or with your debit or credit card.</p>
 
-                      <PayPalButton
-                        amount={this.state.total_fee}
-                        
-                        // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
-                        onSuccess={(details, data) => {
-                          this.state.billing_amount_currency  = details.purchase_units[0].amount.currency_code;
-                          this.state.billing_amount_value     = details.purchase_units[0].amount.value;
-                          this.state.billing_orderID          = data.orderID;
-                          this.state.billing_payerID          = data.payerID;
-                          this.state.billing_email_address    = details.payer.email_address;
-                          this.state.billing_name             = details.payer.name.given_name+" "+ details.payer.name.surname;
-                          this.state.billing_create_time      = details.create_time;
-                          this.state.billing_update_time      = details.update_time;
+                        <PayPalButton
+                          amount={this.state.total_fee}
+                          
+                          // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
+                          onSuccess={(details, data) => {
+                            this.state.billing_amount_currency  = details.purchase_units[0].amount.currency_code;
+                            this.state.billing_amount_value     = details.purchase_units[0].amount.value;
+                            this.state.billing_orderID          = data.orderID;
+                            this.state.billing_payerID          = data.payerID;
+                            this.state.billing_email_address    = details.payer.email_address;
+                            this.state.billing_name             = details.payer.name.given_name+" "+ details.payer.name.surname;
+                            this.state.billing_create_time      = details.create_time;
+                            this.state.billing_update_time      = details.update_time;
 
-                          // console.log(details);
-                          // console.log(data);
-                          // console.log(details.create_time);
-                          // console.log(details.update_time);
-                          // console.log(details.purchase_units[0].amount.currency_code)
-                          // console.log(details.purchase_units[0].amount.value)
-                          return this.onSubmitBookAppointment2()
+                            // console.log(details);
+                            // console.log(data);
+                            // console.log(details.purchase_units[0].amount.currency_code)
+                            // console.log(details.purchase_units[0].amount.value)
+                            return this.onSubmitBookAppointment2()
+                          }}
 
-                        }}
-                        onError={(err) => {
-                          alert(err);
-                          window.location.reload();
-                        }}
-                      />
+                          onError={(err) => {
+                            alert(err);
+                            window.location.reload();
+                          }}
+
+                          options={{
+                            clientId: "AVx-UESGmRd47pO8XzTG7_vMWsTHaAybTQIhdOHz2vxId7vHZxtzQL07KKs0JN7Z2pECJw4Jk-0KGszf",
+                            // disableFunding: "card"
+                          }}
+                        /><br></br>
+                        <Button type="submit" className="btn-lg" color="primary" onClick={this.onSubmitFlutterPay} style={{width: "100%", backgroundColor: "#c88009"}}>Flutterwave</Button>
                     </Col>
                     <Col xs="3" sm="3"></Col>
                   </Row>
@@ -408,7 +621,7 @@ class PatientCart extends Component {
               <Button color="secondary" onClick={() => this.toggleMakePayment("close", "close")}>Cancel</Button>
             </ModalFooter>
           </Modal>
-          {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+          {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
 
        
 

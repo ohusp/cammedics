@@ -22,14 +22,39 @@ class Doctors extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'username', 'first_name', 'last_name', 'middle_name', 'email', 'zip_code', 'telephone', 'password', 'auth_token', 'ev_code', 'title', 'gender', 'gender_others', 'dob', 'nationality', 'country_of_residence', 'district_province_state', 'contact_address', 'area_of_specialization', 'available_on_appointment', 'available_on_emergency', 'available_by_time', 
+        'username', 
+        'first_name', 
+        'last_name', 
+        'middle_name', 
+        'email', 
+        'zip_code', 
+        'telephone', 
+        'password', 
+        'auth_token', 
+        'ev_code', 
+        'title', 
+        'gender', 
+        'gender_others', 
+        'dob', 
+        'nationality', 
+        'country_of_residence', 
+        'district_province_state', 
+        'contact_address', 
+        'area_of_specialization', 
+        'available_on_appointment', 
+        'available_on_emergency', 
+        'available_by_time', 
         'share_med_history', 
         'profile_picture', 
         'medical_certificate', 
         'medical_license', 
         'bank_name', 
-        'bank_account_name', 'bank_account_number', 
-        'consultation_fee', 'hospital', 'status'
+        'bank_account_name', 
+        'bank_account_number', 
+        'consultation_fee', 
+        'hospital', 
+        'associate',
+        'status'
     ];
 
     /**

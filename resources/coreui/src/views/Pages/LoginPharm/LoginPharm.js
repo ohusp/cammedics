@@ -151,6 +151,7 @@ class LoginPharm extends Component {
                     width="160"
                   />
                 </a>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Pharmacy</h5>
               </div>
               <CardGroup>
                 <Card className="p-4">

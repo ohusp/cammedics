@@ -17,7 +17,8 @@ const RegisterPort     = React.lazy(() => import('./views/Pages/RegisterPort/Reg
 const RegisterDoc      = React.lazy(() => import('./views/Pages/RegisterDoc/RegisterDoc'));
 const RegisterLab      = React.lazy(() => import('./views/Pages/RegisterLab/RegisterLab'));
 const RegisterHospital = React.lazy(() => import('./views/Pages/RegisterHospital/RegisterHospital'));
-const RegisterPharm    = React.lazy(() => import('./views/Pages/RegisterPharm/RegisterPharm'));
+const RegisterAssociate = React.lazy(() => import('./views/Pages/RegisterAssociate/RegisterAssociate'));
+const RegisterPharm     = React.lazy(() => import('./views/Pages/RegisterPharm/RegisterPharm'));
 
 const TermsConditions     = React.lazy(() => import('./views/Pages/TermsConditions/TermsConditions'));
 const ProvidersAgreement  = React.lazy(() => import('./views/Pages/ProvidersAgreement/ProvidersAgreement'));
@@ -29,6 +30,7 @@ const LoginPort     = React.lazy(() => import('./views/Pages/LoginPort'));
 const LoginDoc      = React.lazy(() => import('./views/Pages/LoginDoc'));
 const LoginLab      = React.lazy(() => import('./views/Pages/LoginLab'));
 const LoginHospital = React.lazy(() => import('./views/Pages/LoginHospital'));
+const LoginAssociate = React.lazy(() => import('./views/Pages/LoginAssociate'))
 
 const ForgetPasswordPatient   = React.lazy(() => import('./views/Pages/ForgetPasswordPatient'));
 const ResetPasswordPatient    = React.lazy(() => import('./views/Pages/ResetPasswordPatient'));
@@ -36,12 +38,16 @@ const ForgetPasswordDoc       = React.lazy(() => import('./views/Pages/ForgetPas
 const ResetPasswordDoc        = React.lazy(() => import('./views/Pages/ResetPasswordDoc'));
 const ForgetPasswordHospital  = React.lazy(() => import('./views/Pages/ForgetPasswordHospital'));
 const ResetPasswordHospital   = React.lazy(() => import('./views/Pages/ResetPasswordHospital'));
+const ForgetPasswordAssociate = React.lazy(() => import('./views/Pages/ForgetPasswordAssociate'));
+const ResetPasswordAssociate  = React.lazy(() => import('./views/Pages/ResetPasswordAssociate'));
 const ForgetPasswordPort      = React.lazy(() => import('./views/Pages/ForgetPasswordPort'));
 const ResetPasswordPort       = React.lazy(() => import('./views/Pages/ResetPasswordPort'));
 const ForgetPasswordPharm     = React.lazy(() => import('./views/Pages/ForgetPasswordPharm'));
 const ResetPasswordPharm      = React.lazy(() => import('./views/Pages/ResetPasswordPharm'));
 const ForgetPasswordLab       = React.lazy(() => import('./views/Pages/ForgetPasswordLab'));
 const ResetPasswordLab        = React.lazy(() => import('./views/Pages/ResetPasswordLab'));
+
+const Concert = React.lazy(() => import('./views/Pages/Concert/Concert'));
 
 // Pages
 
@@ -64,6 +70,7 @@ class App extends Component {
               <Route exact path="/register_doctor" name="Register Doctor" render={props => <RegisterDoc {...props}/>} />
               <Route exact path="/register_lab" name="Register Laboratory" render={props => <RegisterLab {...props}/>} />
               <Route exact path="/register_hospital" name="Register Hospital" render={props => <RegisterHospital {...props}/>} />
+              <Route exact path="/register_associate" name="Register Associate" render={props => <RegisterAssociate {...props}/>} />
               <Route exact path="/register_pharm" name="Register Pharmacy" render={props => <RegisterPharm {...props}/>} />
               <Route exact path="/terms_conditions" name="Terms and Conditions" render={props => <TermsConditions {...props}/>} />
               <Route exact path="/providers_agreement" name="Providers' Agreement" render={props => <ProvidersAgreement {...props}/>} />
@@ -74,19 +81,24 @@ class App extends Component {
               <Route exact path="/login_doctor" name="LoginDoc Page" render={props => <LoginDoc {...props}/>} />
               <Route exact path="/login_lab" name="LoginLab Page" render={props => <LoginLab {...props}/>} />
               <Route exact path="/login_hospital" name="Login Hospital Page" render={props => <LoginHospital {...props}/>} />
+              <Route exact path="/login_associate" name="Login Associate Page" render={props => <LoginAssociate {...props}/>} />
 
               <Route exact path="/forgetpassword_patient" name="Forget Password Page" render={props =>  <ForgetPasswordPatient {...props}/>} />
               <Route exact path="/resetpassword_patient" name="Reset Password Page" render={props =>   <ResetPasswordPatient {...props}/>} />
               <Route exact path="/forgetpassword_doctor" name="Forget Password Page" render={props =>  <ForgetPasswordDoc {...props}/>} />
               <Route exact path="/resetpassword_doctor" name="Reset Password Page" render={props =>   <ResetPasswordDoc {...props}/>} />
               <Route exact path="/forgetpassword_hospital" name="Forget Password Page" render={props =>  <ForgetPasswordHospital {...props}/>} />
+              <Route exact path="/forgetpassword_associate" name="Forget Password Page" render={props =>  <ForgetPasswordAssociate {...props}/>} />
               <Route exact path="/resetpassword_hospital" name="Reset Password Page" render={props =>   <ResetPasswordHospital {...props}/>} />
+              <Route exact path="/resetpassword_associate" name="Reset Password Page" render={props =>   <ResetPasswordAssociate {...props}/>} />
               <Route exact path="/forgetpassword_port" name="Forget Password Page" render={props =>  <ForgetPasswordPort {...props}/>} />
               <Route exact path="/resetpassword_port" name="Reset Password Page" render={props =>   <ResetPasswordPort {...props}/>} />
               <Route exact path="/forgetpassword_pharm" name="Forget Password Page" render={props =>  <ForgetPasswordPharm {...props}/>} />
               <Route exact path="/resetpassword_pharm" name="Reset Password Page" render={props =>   <ResetPasswordPharm {...props}/>} />
               <Route exact path="/forgetpassword_lab" name="Forget Password Page" render={props =>  <ForgetPasswordLab {...props}/>} />
               <Route exact path="/resetpassword_lab" name="Reset Password Page" render={props =>   <ResetPasswordLab {...props}/>} />
+
+              <Route exact path="/concert" name="Concert Page" render={props => <Concert {...props}/>} />
               {/* //////////////////////////////////////////////////////////////////////////// */}
               
               <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />

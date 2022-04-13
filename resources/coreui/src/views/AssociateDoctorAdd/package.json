@@ -1,0 +1,6 @@
+{
+  "name": "AssociateDoctorAdd",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AssociateDoctorAdd.js"
+}

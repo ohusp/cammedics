@@ -188,6 +188,7 @@ class Ports extends Component {
 
       status: "",
       port_status: "",
+      login_as: "",
       
     };
     this.handlePageChangePorts=this.handlePageChangePorts.bind(this);
@@ -217,32 +218,36 @@ class Ports extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/admin/list_ports?token=${this.state.token}`)
-    .then(response => {
-      console.log("ROI Cartoon");
-      console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        console.log(typeof(json.data.data.data));
-        console.log(json.data.data.data);
-        this.setState({ 
-          ports_list: json.data.data.data,
-          itemsCountPerPage_ports: json.data.data.per_page,
-          totalItemsCount_ports: json.data.data.total,
-          activePage_ports: json.data.data.current_page
-        });
-      } else {
-        
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "admin_user"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/admin/list_ports?token=${this.state.token}`)
+      .then(response => {
+        console.log("ROI Cartoon");
+        console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          console.log(typeof(json.data.data.data));
+          console.log(json.data.data.data);
+          this.setState({ 
+            ports_list: json.data.data.data,
+            itemsCountPerPage_ports: json.data.data.per_page,
+            totalItemsCount_ports: json.data.data.total,
+            activePage_ports: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+      });
+    }
   }
 
   // Pagination handler

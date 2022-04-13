@@ -72,6 +72,36 @@ export default {
       //   text: 'NEW',
       // },
     },
+
+    {
+      name: 'Contact us',
+      url: '/admin/contact_us',
+      icon: 'icon-envelope',
+      // badge: {
+      //   variant: 'info',
+      //   text: 'NEW',
+      // },
+    },
+
+    {
+      name: 'General Appointments',
+      url: '/admin/book_an_appointment',
+      icon: 'icon-note',
+      // badge: {
+      //   variant: 'info',
+      //   text: 'NEW',
+      // },
+    },
+
+    {
+      name: 'Send Email',
+      url: '/admin/send_email',
+      icon: 'icon-envelope',
+      // badge: {
+      //   variant: 'info',
+      //   text: 'NEW',
+      // },
+    },
     // /////////////////////////////////////////////////////////////////////////////////////////
     // {
     //   title: true,

@@ -1,0 +1,6 @@
+{
+  "name": "ResetPasswordAssociate",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./ResetPasswordAssociate.js"
+}

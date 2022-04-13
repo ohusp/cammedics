@@ -1,0 +1,6 @@
+{
+  "name": "SendEmail",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./SendEmail.js"
+}

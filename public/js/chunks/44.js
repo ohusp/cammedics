@@ -11,10 +11,10 @@ module.exports = "/images/cam-medics-logo.png?20d7a32b8eafe9ebd1a3a00687b3ed63";
 
 /***/ }),
 
-/***/ "./resources/coreui/src/views/Pages/Login/Login.js":
-/*!*********************************************************!*\
-  !*** ./resources/coreui/src/views/Pages/Login/Login.js ***!
-  \*********************************************************/
+/***/ "./resources/coreui/src/views/Pages/ForgetPasswordAssociate/ForgetPasswordAssociate.js":
+/*!*********************************************************************************************!*\
+  !*** ./resources/coreui/src/views/Pages/ForgetPasswordAssociate/ForgetPasswordAssociate.js ***!
+  \*********************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -28,11 +28,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var aes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! aes */ "./node_modules/aes/index.js");
-/* harmony import */ var aes__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(aes__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _emotion_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @emotion/core */ "./node_modules/@emotion/core/dist/core.browser.esm.js");
-/* harmony import */ var react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-spinners/ScaleLoader */ "./node_modules/react-spinners/ScaleLoader.js");
-/* harmony import */ var react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var sweetalert2_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! sweetalert2-react */ "./node_modules/sweetalert2-react/dist/sweetalert-react.min.js");
+/* harmony import */ var sweetalert2_react__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(sweetalert2_react__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var aes__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! aes */ "./node_modules/aes/index.js");
+/* harmony import */ var aes__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(aes__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _emotion_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @emotion/core */ "./node_modules/@emotion/core/dist/core.browser.esm.js");
+/* harmony import */ var react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-spinners/ScaleLoader */ "./node_modules/react-spinners/ScaleLoader.js");
+/* harmony import */ var react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_8__);
 function _typeof(obj) {
   "@babel/helpers - typeof";
 
@@ -193,21 +195,22 @@ function _taggedTemplateLiteral(strings, raw) {
 
 
 
+
  // ////////// LOADER /////////////////////////////////
 
 
 
-var override = Object(_emotion_core__WEBPACK_IMPORTED_MODULE_6__["css"])(_templateObject()); // ///////////////////////////////////////////////////
+var override = Object(_emotion_core__WEBPACK_IMPORTED_MODULE_7__["css"])(_templateObject()); // ///////////////////////////////////////////////////
 
-var Login = /*#__PURE__*/function (_Component) {
-  _inherits(Login, _Component);
+var ForgetPasswordAssociate = /*#__PURE__*/function (_Component) {
+  _inherits(ForgetPasswordAssociate, _Component);
 
-  var _super = _createSuper(Login);
+  var _super = _createSuper(ForgetPasswordAssociate);
 
-  function Login(props) {
+  function ForgetPasswordAssociate(props) {
     var _this;
 
-    _classCallCheck(this, Login);
+    _classCallCheck(this, ForgetPasswordAssociate);
 
     _this = _super.call(this, props);
     _this.state = {
@@ -216,8 +219,8 @@ var Login = /*#__PURE__*/function (_Component) {
       errors: {},
       isLoggedIn: false,
       user: {},
-      storedData1: {},
-      storedData2: {},
+      // storedData1: {},
+      // storedData2: {},
       // /////// LOADER ////////////
       showDiv: "none",
       loading: false,
@@ -230,7 +233,7 @@ var Login = /*#__PURE__*/function (_Component) {
     return _this;
   }
 
-  _createClass(Login, [{
+  _createClass(ForgetPasswordAssociate, [{
     key: "onChange",
     value: function onChange(e) {
       this.setState(_defineProperty({}, e.target.name, e.target.value));
@@ -248,12 +251,13 @@ var Login = /*#__PURE__*/function (_Component) {
       }); // ////////////////////////////////
 
       var user = {
-        email: this.state.email,
-        password: this.state.password
+        email: this.state.email // password: this.state.password
+
       };
-      var encrypted_user_data = Object(aes__WEBPACK_IMPORTED_MODULE_5__["AesEncrypt"])(user, 'where do you go when you by yourself');
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('api/patient/login', {
-        user: encrypted_user_data
+      var encrypted_user_data = Object(aes__WEBPACK_IMPORTED_MODULE_6__["AesEncrypt"])(user, 'where do you go when you by yourself');
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post('api/associate/forgetPassword', {
+        email: encrypted_user_data // password: user.password
+
       }).then(function (response) {
         // console.log("response-1");
         // console.log(response);
@@ -270,46 +274,15 @@ var Login = /*#__PURE__*/function (_Component) {
 
         if (json.data.success) {
           _this2.setState({
-            alert_message: "success"
+            successMessage: "Please follow the link sent to your email and reset your password",
+            showSuccess: true
           });
-
-          var _json$data$data = json.data.data,
-              id = _json$data$data.id,
-              created_at = _json$data$data.created_at,
-              auth_token = _json$data$data.auth_token,
-              user_type = _json$data$data.user_type;
-          var userData = {
-            id: id,
-            created_at: created_at,
-            auth_token: auth_token,
-            user_type: user_type,
-            timestamp: new Date().toString()
-          };
-          var appState = {
-            isLoggedIn: true,
-            user: userData
-          };
-          localStorage["login_from"] = "patient"; // save app state with user date in local storage
-
-          localStorage["appState"] = JSON.stringify(appState); // console.log("Response-2");
-          // console.log(localStorage["appState"]);
-          // console.log("Response-3");
-
-          _this2.setState({
-            isLoggedIn: appState.isLoggedIn,
-            user: appState.user
-          });
-
-          var timeout = setTimeout(function () {
-            window.location.reload();
-          }, 100).then(_this2.props.history.push("/profile"));
         } else {
           _this2.setState({
-            alert_message: "error"
+            errorMessage: "Forget password failed",
+            showError: true
           });
         }
-
-        jquery__WEBPACK_IMPORTED_MODULE_4___default()("#login-form button").removeAttr("disabled").html("Login");
       })["catch"](function (err) {// console.log(err)
       });
     }
@@ -330,15 +303,14 @@ var Login = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "flex-row align-items-center"
+        className: "app flex-row align-items-center"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Container"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Row"], {
         className: "justify-content-center"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Col"], {
-        md: "8",
-        style: {
-          marginTop: "100px"
-        }
+        md: "8"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "mb-3 mx-auto text-center"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
@@ -348,18 +320,19 @@ var Login = /*#__PURE__*/function (_Component) {
         src: this.state.avatar,
         alt: this.state.Cam_Medics,
         width: "160"
-      }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["CardGroup"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Card"], {
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+        className: "text-center",
+        style: {
+          marginTop: "15px"
+        }
+      }, "Associate")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["CardGroup"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Card"], {
         className: "p-4"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Form"], {
         noValidate: true,
         onSubmit: this.onSubmit
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, "Login"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, "Forget Password"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
         className: "text-muted"
-      }, "Sign In to your account"), this.state.alert_message == "success" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Alert"], {
-        color: "success"
-      }, "Successful") : null, this.state.alert_message == "error" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Alert"], {
-        color: "danger"
-      }, "Invalid username or password") : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroup"], {
+      }, "Enter your email address"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroup"], {
         className: "mb-3"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroupAddon"], {
         addonType: "prepend"
@@ -372,45 +345,36 @@ var Login = /*#__PURE__*/function (_Component) {
         placeholder: "Enter email",
         value: this.state.email,
         onChange: this.onChange
-      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroup"], {
-        className: "mb-4"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroupAddon"], {
-        addonType: "prepend"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["InputGroupText"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
-        className: "icon-lock"
-      }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-        type: "password",
-        className: "form-control",
-        name: "password",
-        placeholder: "Password",
-        onChange: this.onChange
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Col"], {
-        xs: "6"
+        xs: "12"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "submit",
         className: "btn btn-lg kiu-btn btn-block"
-      }, "Sign in")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Col"], {
+      }, "Forget Password")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Col"], {
         xs: "6",
         className: "text-right"
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Col"], {
         xs: "6",
         className: "text-right"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
-        to: "/forgetpassword_patient"
+        to: "/login_associate"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Button"], {
         color: "link",
         className: "px-0 kiu-color"
-      }, "Forget password?")))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Card"], {
-        className: "text-white kiu-bg py-5"
+      }, " Sign In")))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Card"], {
+        className: "text-white kiu-bg py-5 d-md-down-none",
+        style: {
+          width: '44%'
+        }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["CardBody"], {
         className: "text-center"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h2", null, "Sign up"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Hospital without borders where innovative technology meets premium care.", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "It's all about you."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
-        to: "/register"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h2", null, "Sign up"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Hospital without borders where innovative technology meets premium care.", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "It's all about you."), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Don't Have An Account?", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
+        to: "/register_associate"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_2__["Button"], {
         className: "mt-3 cam-btn-white-bg",
         active: true,
         tabIndex: -1
-      }, "Register Now!"))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, "Register Now!")))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "sweet-loading",
         style: {
           position: "fixed",
@@ -428,7 +392,7 @@ var Login = /*#__PURE__*/function (_Component) {
           padding: "15px",
           borderRadius: "20px"
         }
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_7___default.a, {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_spinners_ScaleLoader__WEBPACK_IMPORTED_MODULE_8___default.a, {
         css: override,
         height: 50,
         width: 3,
@@ -440,14 +404,58 @@ var Login = /*#__PURE__*/function (_Component) {
         style: {
           color: "#ca333a"
         }
-      }, "Loading..."))))));
+      }, "Loading..."))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        id: "sweet_alert1",
+        style: {
+          display: "none"
+        },
+        onClick: function onClick() {
+          return _this3.setState({
+            showSuccess: true
+          });
+        }
+      }, "Alert"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(sweetalert2_react__WEBPACK_IMPORTED_MODULE_5___default.a, {
+        show: this.state.showSuccess // title="Demo"
+        ,
+        type: "success",
+        confirmButtonColor: "#2167ac",
+        animation: "true",
+        text: this.state.successMessage,
+        onConfirm: function onConfirm() {
+          return _this3.setState({
+            showSuccess: false
+          });
+        }
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        id: "sweet_alert2",
+        style: {
+          display: "none"
+        },
+        onClick: function onClick() {
+          return _this3.setState({
+            showError: true
+          });
+        }
+      }, "Alert"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(sweetalert2_react__WEBPACK_IMPORTED_MODULE_5___default.a, {
+        show: this.state.showError // title="Demo"
+        ,
+        type: "warning",
+        confirmButtonColor: "#2167ac",
+        animation: "true",
+        text: this.state.errorMessage,
+        onConfirm: function onConfirm() {
+          return _this3.setState({
+            showError: false
+          });
+        }
+      }));
     }
   }]);
 
-  return Login;
+  return ForgetPasswordAssociate;
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
-/* harmony default export */ __webpack_exports__["default"] = (Login);
+/* harmony default export */ __webpack_exports__["default"] = (ForgetPasswordAssociate);
 
 /***/ })
 

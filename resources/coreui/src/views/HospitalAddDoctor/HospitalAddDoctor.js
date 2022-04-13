@@ -178,34 +178,65 @@ class HospitalAddDoctor extends Component {
       med_lic_uploaded:  "",
       // to show n hide others gender
       show:false,
-      countries:[]
+      countries:[],
+      login_as: "",
     };
   }
 
   componentDidMount()
   { 
-    // ///////////////////// get countries /////////////////////////////////////
-    axios.get(`/api/get/countries?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "hospital"){
+      hashHistory.push('/premontessori');
+    }else{
+      // ///////////////////// get countries /////////////////////////////////////
+      axios.get(`/api/get/countries?token=${this.state.token}`)
+      .then(response => {
+        // console.log("COUNTRIES");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("All Rise");
+          this.setState({ 
+            countries: json.data.data,
+          });
+        } else {
+
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/hospital/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      // console.log("COUNTRIES");
-      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        // console.log("All Rise");
-        this.setState({ 
-          countries: json.data.data,
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
-
+        
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 
@@ -439,20 +470,20 @@ class HospitalAddDoctor extends Component {
               <Card>
                 {/* // ////////// LOADER ////////////// */}
                   <div className="sweet-loading" style={{position: "fixed", height:"100%", width:"100%", display: this.state.showDiv, top:"50%", left:"50%",zIndex:"1500"}}>
-                      <div style={{position: "absolute", backgroundColor: "#ffffffcf",width:"100px",padding:"15px",borderRadius:"20px" }}>
-                        <ScaleLoader
-                          css={override}
-                          height={50}
-                          width={3}
-                          radius={2}
-                          margin={5}
-                          color={"#2167ac"}
-                          loading={this.state.loading}
-                        />
-                        <h6 style={{color: "#ca333a"}}>Loading...</h6>
-                      </div>
+                    <div style={{position: "absolute", backgroundColor: "#ffffffcf",width:"100px",padding:"15px",borderRadius:"20px" }}>
+                      <ScaleLoader
+                        css={override}
+                        height={50}
+                        width={3}
+                        radius={2}
+                        margin={5}
+                        color={"#2167ac"}
+                        loading={this.state.loading}
+                      />
+                      <h6 style={{color: "#ca333a"}}>Loading...</h6>
                     </div>
-                  {/* // ///////////////// ////////////// */}
+                  </div>
+                {/* // ///////////////// ////////////// */}
                 <CardHeader>
                   <i className="fa fa-align-justify"></i><strong>Doctor's Data</strong>
                   <div className="card-header-actions">

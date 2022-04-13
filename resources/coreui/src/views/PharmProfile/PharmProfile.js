@@ -162,47 +162,53 @@ class PharmProfile extends Component {
       // //////////////////////////////////
       successMessage: "Successful",
       errorMessage: "Failed",
+      login_as: "",
     };
   }
 
   componentDidMount()
   { 
-    axios.get(`/api/pharm/get/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        this.setState({ 
-          name: json.data.data.name,
-          username: json.data.data.username,
-          email: json.data.data.email,
-          zip_code: json.data.data.zip_code,
-          telephone: json.data.data.telephone,
-          pharm_country: json.data.data.pharm_country,
-
-          pharm_district_province_state: json.data.data.pharm_district_province_state,
-          pharm_address: json.data.data.pharm_address,
-          pharm_logo: json.data.data.pharm_logo,
-
-          medical_license: json.data.data.medical_license,
-
-          bank_name: json.data.data.bank_name,
-          bank_account_name: json.data.data.bank_account_name,
-          bank_account_number: json.data.data.bank_account_number,
-
-          status: json.data.data.status,
-        }, this.getCountries);
-      } else {
-
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "pharm"){
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    }else{
+      axios.get(`/api/pharm/get/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            name: json.data.data.name,
+            username: json.data.data.username,
+            email: json.data.data.email,
+            zip_code: json.data.data.zip_code,
+            telephone: json.data.data.telephone,
+            pharm_country: json.data.data.pharm_country,
+
+            pharm_district_province_state: json.data.data.pharm_district_province_state,
+            pharm_address: json.data.data.pharm_address,
+            pharm_logo: json.data.data.pharm_logo,
+
+            medical_license: json.data.data.medical_license,
+
+            bank_name: json.data.data.bank_name,
+            bank_account_name: json.data.data.bank_account_name,
+            bank_account_number: json.data.data.bank_account_number,
+
+            status: json.data.data.status,
+          }, this.getCountries);
+        } else {
+
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   getPharmacist()
@@ -226,7 +232,7 @@ class PharmProfile extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -438,14 +444,13 @@ class PharmProfile extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
       });
     }
   }
 
   onSubmitBankAccountDetails(e)
   {   
-    // alert("Hello World");
     e.preventDefault();
     if(
       this.state.bank_name == "" || this.state.bank_account_name == "" || this.state.bank_account_number == "" ||
@@ -488,7 +493,7 @@ class PharmProfile extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
     }
@@ -496,7 +501,6 @@ class PharmProfile extends Component {
 
   onSubmitPharmacist(e)
   {   
-    // alert("Hello World");
     e.preventDefault();
     if(
       this.state.pharmacist_name == "" || this.state.pharmacist_qualifications == "" ||
@@ -539,7 +543,7 @@ class PharmProfile extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
     }
@@ -593,7 +597,7 @@ class PharmProfile extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }

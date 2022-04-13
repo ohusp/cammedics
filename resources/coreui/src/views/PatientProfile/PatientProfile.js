@@ -343,128 +343,134 @@ class PatientProfile extends Component {
       showError:    false,
       successMessage: "Successful",
       errorMessage: "Failed",
-      countries:[]
+      countries:[],
+      login_as: "",
 
     };
   }
 
   componentDidMount()
   { 
-    axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        if(json.data.data.allow_patient_update_med == 0){
-          this.setState({
-            allow_patient_update_med: 'none',
-          })
-        }
-        this.setState({ 
-          title: json.data.data.title,
-          first_name: json.data.data.first_name,
-          last_name: json.data.data.last_name,
-          middle_name: json.data.data.middle_name,
-          email: json.data.data.email,
-          zip_code: json.data.data.zip_code,
-          telephone: json.data.data.telephone,
-          gender: json.data.data.gender,
-          gender_others: json.data.data.gender_others,
-          dob: json.data.data.dob,
-          nationality: json.data.data.nationality,
-          country_of_residence: json.data.data.country_of_residence,
-          district_province_state: json.data.data.district_province_state,
-          contact_address: json.data.data.contact_address,
-          height: json.data.data.height,
-          weight: json.data.data.weight,
-          // ///////// DISABILITY /////////////////////////////////////////
-          disability_none: json.data.data.disability_none,
-          disability_hearing: json.data.data.disability_hearing,
-          disability_mobility: json.data.data.disability_mobility,
-          disability_sight: json.data.data.disability_sight,
-          disability_learning: json.data.data.disability_learning,
-          disability_others: json.data.data.disability_others,
-          /////////////////////////////////////////////
-          next_of_kin_name: json.data.data.next_kin_name,
-          next_of_kin_relationship: json.data.data.next_kin_relationship,
-          next_of_kin_occupation: json.data.data.next_kin_occupation,
-          next_of_kin_phone: json.data.data.next_kin_phone,
-          next_of_kin_email: json.data.data.next_kin_email,
-          // /////////////////////////////////////////////
-          // bank_name: json.data.data.bank_name,
-          // bank_account_name: json.data.data.bank_account_name,
-          // bank_account_number: json.data.data.bank_account_number,
-          // //////////////////////////////////////////////////////
-          // medications_currently_using: json.data.data.med_currently_using,
-          // allergies: json.data.data.med_allergies,
-          // blood_group: json.data.data.med_blood_group,
-          // underlying_conditions: json.data.data.med_underlying_conditions,
-          // family_medical_history: json.data.data.med_family_medical_history,
-          // hypertensive: json.data.data.med_hypertensive,
-          // diabetic: json.data.data.med_diabetic,
-
-          profile_picture: json.data.data.profile_picture,
-
-          status: json.data.data.status,
-        }, this.getMedicalRec);
-      } else {
-
-      }
-
-      axios.get(`/api/SharedMedRecDoc/list/`+this.state.id+`?token=${this.state.token}`)
-        .then(response => {
-          return response;
-        })
-        .then(json => {
-          if (json.data.success) {
-            this.setState({ 
-              medical_share_list: json.data.data.data,
-              itemsCountPerPage: json.data.data.per_page,
-              totalItemsCount: json.data.data.total,
-              activePage: json.data.data.current_page,
-            });
-          } else {
-
-          }
-        })
-        .catch(error => {
-          // redirect user to previous page if user does not have autorization to the page
-          // hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);
-          
-        });
-
-        axios.get(`/api/SharedMedRecPort/list/`+this.state.id+`?token=${this.state.token}`)
-        .then(response => {
-          return response;
-        })
-        .then(json => {
-          if (json.data.success) {
-            this.setState({ 
-              medical_share_port_list: json.data.data.data,
-              itemsCountPerPage_port: json.data.data.per_page,
-              totalItemsCount_port: json.data.data.total,
-              activePage_port: json.data.data.current_page
-            });
-          } else {
-            
-          }
-        })
-        .catch(error => {
-          // redirect user to previous page if user does not have autorization to the page
-          hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);
-          
-        });
-  
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "patient"){
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    }else{
+      axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          if(json.data.data.allow_patient_update_med == 0){
+            this.setState({
+              allow_patient_update_med: 'none',
+            })
+          }
+          this.setState({ 
+            title: json.data.data.title,
+            first_name: json.data.data.first_name,
+            last_name: json.data.data.last_name,
+            middle_name: json.data.data.middle_name,
+            email: json.data.data.email,
+            zip_code: json.data.data.zip_code,
+            telephone: json.data.data.telephone,
+            gender: json.data.data.gender,
+            gender_others: json.data.data.gender_others,
+            dob: json.data.data.dob,
+            nationality: json.data.data.nationality,
+            country_of_residence: json.data.data.country_of_residence,
+            district_province_state: json.data.data.district_province_state,
+            contact_address: json.data.data.contact_address,
+            height: json.data.data.height,
+            weight: json.data.data.weight,
+            // ///////// DISABILITY /////////////////////////////////////////
+            disability_none: json.data.data.disability_none,
+            disability_hearing: json.data.data.disability_hearing,
+            disability_mobility: json.data.data.disability_mobility,
+            disability_sight: json.data.data.disability_sight,
+            disability_learning: json.data.data.disability_learning,
+            disability_others: json.data.data.disability_others,
+            /////////////////////////////////////////////
+            next_of_kin_name: json.data.data.next_kin_name,
+            next_of_kin_relationship: json.data.data.next_kin_relationship,
+            next_of_kin_occupation: json.data.data.next_kin_occupation,
+            next_of_kin_phone: json.data.data.next_kin_phone,
+            next_of_kin_email: json.data.data.next_kin_email,
+            // /////////////////////////////////////////////
+            // bank_name: json.data.data.bank_name,
+            // bank_account_name: json.data.data.bank_account_name,
+            // bank_account_number: json.data.data.bank_account_number,
+            // //////////////////////////////////////////////////////
+            // medications_currently_using: json.data.data.med_currently_using,
+            // allergies: json.data.data.med_allergies,
+            // blood_group: json.data.data.med_blood_group,
+            // underlying_conditions: json.data.data.med_underlying_conditions,
+            // family_medical_history: json.data.data.med_family_medical_history,
+            // hypertensive: json.data.data.med_hypertensive,
+            // diabetic: json.data.data.med_diabetic,
+
+            profile_picture: json.data.data.profile_picture,
+
+            status: json.data.data.status,
+          }, this.getMedicalRec);
+        } else {
+
+        }
+
+        axios.get(`/api/SharedMedRecDoc/list/`+this.state.id+`?token=${this.state.token}`)
+          .then(response => {
+            return response;
+          })
+          .then(json => {
+            if (json.data.success) {
+              this.setState({ 
+                medical_share_list: json.data.data.data,
+                itemsCountPerPage: json.data.data.per_page,
+                totalItemsCount: json.data.data.total,
+                activePage: json.data.data.current_page,
+              });
+            } else {
+
+            }
+          })
+          .catch(error => {
+            // redirect user to previous page if user does not have autorization to the page
+            // hashHistory.push('/premontessori');
+            console.error(`An Error Occuredd! ${error}`);
+            
+          });
+
+          axios.get(`/api/SharedMedRecPort/list/`+this.state.id+`?token=${this.state.token}`)
+          .then(response => {
+            return response;
+          })
+          .then(json => {
+            if (json.data.success) {
+              this.setState({ 
+                medical_share_port_list: json.data.data.data,
+                itemsCountPerPage_port: json.data.data.per_page,
+                totalItemsCount_port: json.data.data.total,
+                activePage_port: json.data.data.current_page
+              });
+            } else {
+              
+            }
+          })
+          .catch(error => {
+            // redirect user to previous page if user does not have autorization to the page
+            hashHistory.push('/premontessori');
+            console.error(`An Error Occuredd! ${error}`);
+            
+          });
+    
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   // Pagination handler

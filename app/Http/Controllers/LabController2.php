@@ -152,16 +152,21 @@ class LabController2 extends Controller
 
     public function patientsList($id)
     {   
-
         $patientslist = DB::table('labbookappointments')
             ->join('labtests', 'labbookappointments.test_id', '=', 'labtests.id')
             ->select('labbookappointments.*', 'labtests.lab_id', 'labtests.name', 'labtests.description', 'labtests.price' )
-            ->where('labbookappointments.lab_id', '=', $id)
+            ->where([['labbookappointments.lab_id', '=', $id], ['labbookappointments.status','!=', 1]])
             ->paginate(10);
 
-        // return $result;
-        $response = ['success'=>true, 'data'=>$patientslist];
-        return response()->json($response, 201);
+        if($patientslist){
+            // return $result;
+            $response = ['success'=>true, 'data'=>$patientslist];
+            return response()->json($response, 201);
+        }else{
+            // return $result;
+            $response = ['success'=>false, 'data'=>"no patient"];
+            return response()->json($response, 201);
+        }
     }
 
     // get patient medical record
@@ -579,7 +584,7 @@ class LabController2 extends Controller
         $status = 1;
         $appointment = Labbookappointment::where([['patient_id', $patient_id], ['lab_id', $lab_id], ['id', $appointment_id]])->get()->first();
         // return $appointment;
-        $appointment->status = 2;
+        $appointment->status = 3;
         $appointment->save();
 
         $appointmentPayment = Labbookappointmentpayment::where([['patient_id', $patient_id], ['lab_id', $lab_id], ['appointment_id', $appointment_id]])->get()->first();

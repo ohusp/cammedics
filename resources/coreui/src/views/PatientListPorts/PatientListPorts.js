@@ -7,6 +7,16 @@ import Pagination from "react-js-pagination";
 import SweetAlert from 'sweetalert2-react';
 
 import { PayPalButton } from "react-paypal-button-v2";
+// ////////// LOADER /////////////////////////////////
+import { css } from "@emotion/core";
+import ScaleLoader from "react-spinners/ScaleLoader";
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
+// ///////////////////////////////////////////////////
 
 import {
   Badge,
@@ -54,7 +64,9 @@ class PatientListPorts extends Component {
     this.togglePrimary    = this.togglePrimary.bind(this);
     this.toggleViewPort = this.toggleViewPort.bind(this);
     this.toggleViewAppointments = this.toggleViewAppointments.bind(this);
+    this.handlePageChangeAppointments = this.handlePageChangeAppointments.bind(this);
     this.toggleMakePayment      = this.toggleMakePayment.bind(this);
+    this.onSubmitFlutterPay     = this.onSubmitFlutterPay.bind(this);
 
     this.onChangeDate       =this.onChangeDate.bind(this);
     this.onChangeHour       =this.onChangeHour.bind(this);
@@ -70,7 +82,7 @@ class PatientListPorts extends Component {
 
     // /////////////////////////////////////////////////////////////////
 
-    this.onSubmitBookAppointment = this.onSubmitBookAppointment.bind(this);
+    this.onSubmitBookAppointment1 = this.onSubmitBookAppointment1.bind(this);
 
     this.state = {
       token: localStorage["appState"]
@@ -81,6 +93,12 @@ class PatientListPorts extends Component {
         : "",
       username: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.username
+        : "",
+      email: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.email
+        : "",
+      telephone: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.telephone
         : "",
       first_name: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.first_name
@@ -164,7 +182,11 @@ class PatientListPorts extends Component {
       total_fee: "",
       // ///////////////////////////////////////
       chatBtn: "",
-
+      // /////// LOADER ////////////
+      showDiv: "none",
+      loading: false,
+      // //////////////////////////
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -185,6 +207,103 @@ class PatientListPorts extends Component {
 
   // fetch data from db
   componentDidMount()
+  { 
+    this.checkIfProfileCompleted();
+    
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "patient"){
+      hashHistory.push('/premontessori');
+    }else{
+      try {
+        // get the url param
+        var url_string = window.location.href;
+        var transaction_details = url_string.split('?')[1];
+        var transaction_details = transaction_details.split('&');
+        var transaction_status  = transaction_details[0];
+        var transaction_ref     = transaction_details[1];
+        // if successful, verify again before displaying success message for flutter, else display error message
+        if(transaction_status == "success"){
+          const payment_data ={
+            transaction_id : transaction_ref, 
+            email : this.state.email,
+          }
+          axios.post(`/flutterwave_port_appointment_verify`, payment_data)
+          .then(response => {
+            // console.log(response);
+            return response;
+          })
+          .then(json => {
+            this.getPorts()
+            if (json.data.success) {
+              // console.log(json.data.data)
+              this.setState({ 
+                successMessage: "Payment successful",
+                showSuccess: true
+              });
+            } else{
+              this.setState({ 
+                errorMessage: json.data.data,
+                showError: true
+              });
+            }
+          })
+          .catch(error => {
+            // console.error(`An Error Occuredd! ${error}`);
+          });
+        }else if(transaction_status == "tampered"){
+          this.setState({ 
+            errorMessage: "Transaction error. Transaction has been tampered with",
+            showError: true
+          });
+        }else if(transaction_status == "Fraud"){
+          this.setState({ 
+            errorMessage: "Transaction error. Fraud transaction detected",
+            showError: true
+          });
+        }else if(transaction_status == "No-transaction"){
+          this.setState({ 
+            errorMessage: "No transaction was found",
+            showError: true
+          });
+        }
+        else{
+          this.setState({ 
+            errorMessage: transaction_status,
+            showError: true
+          });
+        }
+      } catch (error) {
+        this.getPorts()
+      }
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
+    .then(response => {
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+        
+      } else {
+        
+      }
+    })
+    .catch(error => {
+      
+    });
+  }
+
+  getPorts()
   {
     axios.get(`/api/patient/ports_list/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
@@ -205,7 +324,7 @@ class PatientListPorts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -255,7 +374,7 @@ class PatientListPorts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -287,7 +406,6 @@ class PatientListPorts extends Component {
   }
   // get messages
   getMessages2(port_id){
-    // alert("Paulo");
     axios.get(`/api/patient/port/chat/message/get/`+port_id+'/'+this.state.id+`?token=${this.state.token}`)
       .then(response => {
         return response;
@@ -304,7 +422,7 @@ class PatientListPorts extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
   }
@@ -363,7 +481,7 @@ class PatientListPorts extends Component {
         .catch(error => {
           // redirect user to previous page if user does not have autorization to the page
           // hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);      
+          // console.error(`An Error Occuredd! ${error}`);      
         });
     }
   }
@@ -430,6 +548,7 @@ class PatientListPorts extends Component {
     .then(json => {
       if (json.data.success) {
         this.setState({ 
+          port_consultation_fee: json.data.port_data.consultation_fee,
           port_address: json.data.port_data.address,
           port_country: json.data.port_data.country,
           port_district_province_state: json.data.port_data.district_province_state,
@@ -451,7 +570,7 @@ class PatientListPorts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -468,12 +587,12 @@ class PatientListPorts extends Component {
       });
     }
   }
-  
-  onSubmitBookAppointment(e)
-  { 
+
+  onSubmitBookAppointment1(e)
+  {   
     e.preventDefault();
     if(
-      this.state.date == "" || this.state.hour == "" || this.state.minute == "" || this.state.am_pm == "" || this.state.time_zone == "" || this.state.subject == "" || this.state.message == "" || 
+      this.state.date == "" ||  this.state.hour == "" || this.state.minute == "" || this.state.am_pm == "" || this.state.time_zone == "" || this.state.subject == "" || this.state.message == "" || 
       this.state.date == null || this.state.hour == null || this.state.minute == null || this.state.am_pm == null || this.state.time_zone == null || this.state.subject == null || this.state.message == null
     ){
       this.setState({
@@ -481,78 +600,49 @@ class PatientListPorts extends Component {
         showError: true
       });
     }else{
-      // get port's fee
-      axios.get(`/api/patient/port_fee/get/`+this.state.port_id+'/'+this.state.id+`?token=${this.state.token}`)
-      .then(response => {
-        return response;
-      })
-      .then(json => {
-        if (json.data.success) {
-          // if fee is zero meaning out side transaction of free screening
-          if(json.data.port_fee != 0){
-            this.setState({ 
-              port_fee: json.data.port_fee,
-              country_handling_fee: json.data.country_handling_fee,
-              total_fee: json.data.total_fee,
-            }, this.toggleMakePayment());
-          }else{
-            this.setState({ 
-              port_fee: json.data.port_fee,
-              country_handling_fee: json.data.country_handling_fee,
-              total_fee: json.data.total_fee,
-            }, this.onSubmitBookAppointment3());
-          }
-        } else {
-          
-        }
-      })
-      .catch(error => {
-        // redirect user to previous page if user does not have autorization to the page
-        // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
-        
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
       });
-    }
-  }
-
-  onSubmitBookAppointment2()
-  {
-      // e.preventDefault();
-      // alert("here");
-      this.setState({ 
-        successMessage: "Payment successful",
-        showSuccess: true,
-      }, this.onSubmitBookAppointment3);
-  }
-
-  onSubmitBookAppointment3()
-  {
+      // ////////////////////////////////
       const appointment_data ={
         date : this.state.date, 
         time: this.state.hour+":"+this.state.minute+" "+this.state.am_pm,
         time_zone: this.state.time_zone, 
         subject : this.state.subject, 
         message : this.state.message, 
-        // /////////////////////////////////////////////
-        billing_amount_currency: this.state.billing_amount_currency,
-        billing_amount_value: this.state.billing_amount_value,
-        billing_port_fee: this.state.port_fee,
-        billing_country_handling_fee: this.state.country_handling_fee,
-        billing_email_address: this.state.billing_email_address,
-        billing_name: this.state.billing_name,
-        billing_orderID: this.state.billing_orderID,
-        billing_payerID: this.state.billing_payerID
       }
       axios.post(`/api/patient/book_port_appointment/`+this.state.port_id+'/'+this.state.id+`?token=${this.state.token}`, appointment_data)
       .then(response => {
+        // console.log(response);
         return response;
       }, this.toggleMakePayment("close", "close"))
       .then(json => {
-        if (json.data.success) {
+        // ////////// LOADER //////////////
           this.setState({
-            successMessage: json.data.data,
-            showSuccess: true
+            showDiv: "none",
+            loading: false,
           });
+        // ///////////////////////////////
+        if (json.data.success) {
+          if(json.data.port_fee != 0){
+            this.setState({ 
+              port_fee: json.data.port_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+              successMessage: "Successful! Please proceed to make payment.",
+              showSuccess: true
+            }, this.toggleMakePayment());
+          }else{
+            this.setState({ 
+              port_fee: json.data.port_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+              successMessage: "Appointment booked successfully.",
+              showSuccess: true
+            });
+          }
         } else{
           this.setState({
             successMessage: json.data.data,
@@ -563,9 +653,149 @@ class PatientListPorts extends Component {
       .catch(error => {
         this.setState({
           showError: true
-        });
-        
+        });       
       });
+    }
+  }
+  
+  onSubmitBookAppointment2()
+  {   
+    // ////////////// LOADER ////////////
+    this.setState({
+      successMessage: "Payment successful",
+      showSuccess: true,
+      showDiv: "block",
+      loading: true,
+    });
+    // ////////////////////////////////
+    const appointment_data ={
+      billing_amount_currency: this.state.billing_amount_currency,
+      billing_amount_value: this.state.billing_amount_value,
+      billing_port_fee: this.state.port_fee,
+      billing_country_handling_fee: this.state.country_handling_fee,
+      billing_email_address: this.state.billing_email_address,
+      billing_name: this.state.billing_name,
+      billing_orderID: this.state.billing_orderID,
+      billing_payerID: this.state.billing_payerID
+    }
+    axios.post(`/api/patient/book_port_appointment_pay/`+this.state.port_id+'/'+this.state.id+`?token=${this.state.token}`, appointment_data)
+    .then(response => {
+      // console.log(response);
+      return response;
+    }, this.toggleMakePayment("close", "close"))
+    .then(json => {
+      // ////////// LOADER //////////////
+        this.setState({
+          showDiv: "none",
+          loading: false,
+        });
+      // ///////////////////////////////
+      if (json.data.success) {
+        this.setState({ 
+          successMessage: "Appointment booked successfully.",
+          showSuccess: true
+        });
+      } else{
+        this.setState({
+          successMessage: json.data.data,
+          showError: true
+        });
+      }
+    })
+    .catch(error => {
+      this.setState({
+        showError: true
+      });       
+    });
+  }
+
+  onSubmitFlutterPay(e)
+  {
+    e.preventDefault();
+    const payment_data ={
+      amount : this.state.total_fee, 
+      port_fee : this.state.port_fee,
+      country_handling_fee : this.state.country_handling_fee,
+      username : this.state.username,
+      email : this.state.email, 
+      name : this.state.first_name+" "+this.state.last_name,  
+      phone_number : this.state.telephone, 
+      description : "Port's Appontment"
+    }
+    // axios.post(`/flutterwave_pay/appointment`, payment_data)
+    axios.post(`/patient/book_port_appointment_flutterwave_pay/`+this.state.port_id+'/'+this.state.id+`?token=${this.state.token}`, payment_data)
+    .then(response => {
+      // console.log(response);
+      return response;
+    })
+    .then(json => {
+      // console.log(json.data.success)
+      if (json.data.success) {
+        // console.log(json.data.data)
+        // this.setState({
+        //   showSuccess: true
+        // });
+        // var win = window.open(json.data.data, '_blank');
+        var win = window.open(json.data.data);
+        win.focus();
+      } else{
+        this.setState({
+          errorMessage: json.data.data,
+          showError: true
+        });
+      }
+    })
+    .catch(error => {
+      // redirect user to previous page if user does not have autorization to the page
+      // hashHistory.push('/premontessori');
+      // console.error(`An Error Occuredd! ${error}`);
+      
+    });
+  }
+
+  getPortFee(port_id)
+  {   
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
+      
+      axios.post(`/api/patient/get_port_fee/`+port_id+'/'+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log(response);
+        return response;
+      }, this.toggleMakePayment("close", "close"))
+      .then(json => {
+        // ////////// LOADER //////////////
+          this.setState({
+            showDiv: "none",
+            loading: false,
+          });
+        // ///////////////////////////////
+        if (json.data.success) {
+            this.setState({ 
+              port_id: port_id,
+              port_fee: json.data.port_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+              // successMessage: "Successful! Please proceed to make payment.",
+              // showSuccess: true
+            }, this.toggleMakePayment());
+        } else{
+          this.setState({
+            successMessage: json.data.data,
+            showError: true
+          });
+        }
+      })
+      .catch(error => {
+        this.setState({
+          showError: true
+        });       
+      });
+    // }
   }
 
   // /////////////// VIEW APPOINTMENTS
@@ -598,13 +828,13 @@ class PatientListPorts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
     });
   }
 
   handlePageChangeAppointments(pageNumber) {
     // this.setState({activePage: pageNumber});
-    axios.get(`/api/patient/port_appointments/get/`+this.state.id+`?token=${this.state.token}`)
+    axios.get(`/api/patient/port_appointments/get/`+this.state.id+`?token=${this.state.token}&page=`+pageNumber)
     .then(response => {
       return response;
     })
@@ -638,6 +868,22 @@ class PatientListPorts extends Component {
             {/* ///////// PORTS LIST TABLE ///////////// */}
             <Col xs="12" lg="12">
               <Card>
+                {/* // ////////// LOADER ////////////// */}
+                <div className="sweet-loading" style={{position: "fixed", height:"100%", width:"100%", display: this.state.showDiv, top:"50%", left:"50%",zIndex:"1500"}}>
+                    <div style={{position: "absolute", backgroundColor: "#ffffffcf",width:"100px",padding:"15px",borderRadius:"20px" }}>
+                      <ScaleLoader
+                        css={override}
+                        height={50}
+                        width={3}
+                        radius={2}
+                        margin={5}
+                        color={"#2167ac"}
+                        loading={this.state.loading}
+                      />
+                      <h6 style={{color: "#ca333a"}}>Loading...</h6>
+                    </div>
+                  </div>
+                {/* // ///////////////// ////////////// */}
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> List of Ports 
                   <span style={{float: "right"}}>
@@ -654,7 +900,7 @@ class PatientListPorts extends Component {
                         <th>Country</th>
                         <th>District/Province/State</th>
                         <th>Address</th>
-                        {/* <th>Country</th> */}
+                        <th>Consultation Fee</th>
                         {/* <th>Status</th> */}
                         <th>Action</th>
                     </tr>
@@ -681,7 +927,7 @@ class PatientListPorts extends Component {
                               <td>{port.country}</td>
                               <td>{port.district_province_state}</td>
                               <td>{port.address}</td>
-                              {/* <td>{port.country_of_residence}</td> */}
+                              <td>${port.consultation_fee}</td>
                               {/* <td>{this.state.status}</td> */}
                               <td>
                               {/* <Button size="sm" onClick={this.togglePrimary} className="btn-facebook btn-brand icon mr-1 mb-1"><i className="fa fa-eye"></i></Button> */}
@@ -797,7 +1043,10 @@ class PatientListPorts extends Component {
                                     District/Province/State: <strong>{this.state.port_district_province_state}</strong>
                                   </ListGroupItem>
                                   <ListGroupItem className="justify-content-between">
-                                    Address: <strong>{this.state.address}</strong>
+                                    Address: <strong>{this.state.port_address}</strong>
+                                  </ListGroupItem>
+                                  <ListGroupItem className="justify-content-between">
+                                    Consultation Fee: <strong>${this.state.port_consultation_fee}</strong>
                                   </ListGroupItem>
                                 </ListGroup>
                               </Col>
@@ -815,7 +1064,7 @@ class PatientListPorts extends Component {
                 <i className="fa fa-align-justify"></i>{this.state.patient_name} Appointment
               </CardHeader>
               <CardBody>
-                  <Form onSubmit={this.onSubmitBookAppointment}>
+                  <Form onSubmit={this.onSubmitBookAppointment1}>
                     <Row>
                       <Col xs="12" sm="12">
                         {/* ///////////// APPOINTMENT ///////////*/}
@@ -1035,10 +1284,14 @@ class PatientListPorts extends Component {
                                   this.state.appointments_list.map(appointment=>{
                                     // if status is 1 allow chat else disable chat that is consultation is done
                                     if(appointment.status == 1){
+                                      this.state.status = <Badge color="danger">Make Payment</Badge>;
+                                      this.state.chatBtn = <Button size="sm" onClick={() => this.getPortFee(appointment.port_id)} className="btn-facebook btn-brand icon mr-1 mb-1"><i className="fa fa-money"></i></Button>;
+                                    }
+                                    if(appointment.status == 2){
                                       this.state.status = <Badge color="success">Open</Badge>;
                                       this.state.chatBtn = <Button size="sm" onClick={() => this.togglePrimary(appointment.port_id, appointment.port_name)} className="btn-facebook btn-brand icon mr-1 mb-1"><i className="fa fa-comments"></i></Button>;
                                     }
-                                    if(appointment.status == 2){
+                                    if(appointment.status == 3){
                                       this.state.status = <Badge color="danger">Close</Badge>;
                                       this.state.chatBtn = <Button size="sm" onClick={() => this.togglePrimary(appointment.port_id, appointment.port_name)} className="btn-facebook btn-brand icon mr-1 mb-1" disabled><i className="fa fa-comments"></i></Button>;
                                     }
@@ -1091,7 +1344,7 @@ class PatientListPorts extends Component {
           </ModalFooter>
         </Modal>
 
-        {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+        {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
           <Modal isOpen={this.state.primaryMakePayment} className={'modal-primary ' + this.props.className} style={{maxWidth: "1000px"}}>
             <ModalHeader toggle={() => this.toggleMakePayment("close", "close")}>Make Payment</ModalHeader>
             <ModalBody>
@@ -1116,30 +1369,37 @@ class PatientListPorts extends Component {
                         </ListGroup><br></br>
                         <p style={{marginBottom: "25px"}}>You can pay with your paypal account or with your debit or credit card.</p>
 
-                      <PayPalButton
-                        amount={this.state.total_fee}
-                        
-                        // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
-                        onSuccess={(details, data) => {
-                          this.state.billing_amount_currency  = details.purchase_units[0].amount.currency_code
-                          this.state.billing_amount_value     = details.purchase_units[0].amount.value
-                          this.state.billing_orderID          = data.orderID
-                          this.state.billing_payerID          = data.payerID
-                          this.state.billing_email_address    = details.payer.email_address
-                          this.state.billing_name             = details.payer.name.given_name+" "+ details.payer.name.surname;
+                        <PayPalButton
+                          amount={this.state.total_fee}
+                          
+                          // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
+                          onSuccess={(details, data) => {
+                            this.state.billing_amount_currency  = details.purchase_units[0].amount.currency_code
+                            this.state.billing_amount_value     = details.purchase_units[0].amount.value
+                            this.state.billing_orderID          = data.orderID
+                            this.state.billing_payerID          = data.payerID
+                            this.state.billing_email_address    = details.payer.email_address
+                            this.state.billing_name             = details.payer.name.given_name+" "+ details.payer.name.surname;
 
-                          // console.log(details);
-                          // console.log(data);
-                          // console.log(details.purchase_units[0].amount.currency_code)
-                          // console.log(details.purchase_units[0].amount.value)
-                          return this.onSubmitBookAppointment2()
+                            // console.log(details);
+                            // console.log(data);
+                            // console.log(details.purchase_units[0].amount.currency_code)
+                            // console.log(details.purchase_units[0].amount.value)
+                            return this.onSubmitBookAppointment2()
+                          }}
 
-                        }}
-                        onError={(err) => {
-                          alert(err);
-                          window.location.reload();
-                        }}
-                      />
+                          onError={(err) => {
+                            alert(err);
+                            window.location.reload();
+                          }}
+
+                          options={{
+                            clientId: "AVx-UESGmRd47pO8XzTG7_vMWsTHaAybTQIhdOHz2vxId7vHZxtzQL07KKs0JN7Z2pECJw4Jk-0KGszf",
+                            // disableFunding: "card"
+                          }}
+                        /><br></br>
+                        <Button type="submit" className="btn-lg" color="primary" onClick={this.onSubmitFlutterPay} style={{width: "100%", backgroundColor: "#c88009"}}>Flutterwave</Button>
+
                     </Col>
                     <Col xs="3" sm="3"></Col>
                   </Row>
@@ -1151,7 +1411,7 @@ class PatientListPorts extends Component {
               <Button color="secondary" onClick={() => this.toggleMakePayment("close", "close")}>Cancel</Button>
             </ModalFooter>
           </Modal>
-          {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+          {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
 
        
 

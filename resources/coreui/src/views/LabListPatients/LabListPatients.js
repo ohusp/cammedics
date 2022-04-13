@@ -198,6 +198,7 @@ class LabListPatients extends Component {
       errorMessage: "Failed",
       // //////////////////////////////////
       chat_btn_status: false,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -230,32 +231,62 @@ class LabListPatients extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/lab/patients_list/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "laboratory"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/lab/patients_list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("applications_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/lab/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      // console.log("ROI Cartoon");
-      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        // console.log("applications_list");
-        // console.log(typeof(json.data.data.data));
-        // console.log(json.data.data.data);
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 
@@ -588,14 +619,14 @@ class LabListPatients extends Component {
 
           appointment_status: json.data.data.status,
         }, this.toggleViewAppointment(patient_id, name));
-        if(this.state.appointment_status == 1){
+        if(this.state.appointment_status == 2){
           this.setState({ 
             appointment_status: 'Open',
             appointment_status_color: 'success',
             chat_btn_status: false,
           })
         }
-        if(this.state.appointment_status == 2){
+        if(this.state.appointment_status == 3){
           this.setState({ 
             appointment_status: 'Close',
             appointment_status_color: 'danger',
@@ -737,7 +768,7 @@ class LabListPatients extends Component {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> List of Patients 
-                  <ExternalLink href="https://live.cammedics.com/">
+                  <ExternalLink href="/#/live_chat">
                     <Button color="primary" style={{float: "right"}}>Start a Video Chat</Button>
                   </ExternalLink>
 
@@ -763,9 +794,9 @@ class LabListPatients extends Component {
                         this.state.currentPage2 = ((this.state.activePage * 10) - (10 - 1)),
                         // ////////////////////////////////////////////////////////////
                         this.state.applications_list.map(application=>{
-                          if(application.status == 1){
+                          if(application.status == 2){
                             this.state.status = <Badge color="success">Open</Badge>;
-                          }else{
+                          }else if(application.status == 3){
                             this.state.status = <Badge color="danger">Closed</Badge>;
                           }
                           const patient_id  = application.patient_id;

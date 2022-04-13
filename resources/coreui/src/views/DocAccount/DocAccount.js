@@ -59,6 +59,8 @@ class DocAccount extends Component {
       user_type: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.user_type
         : "",
+      
+      login_as: "",
     };
     this.handlePageChange=this.handlePageChange.bind(this);
 
@@ -67,31 +69,62 @@ class DocAccount extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/doc/account/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "doctor"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/doc/account/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("applications_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/doc/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      // console.log("ROI Cartoon");
-      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        // console.log("applications_list");
-        // console.log(typeof(json.data.data.data));
-        // console.log(json.data.data.data);
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
       
     });
   }

@@ -13,6 +13,16 @@ import SweetAlert from 'sweetalert2-react';
 import TimePicker from 'react-time-picker';
 
 import { PayPalButton } from "react-paypal-button-v2";
+// ////////// LOADER /////////////////////////////////
+import { css } from "@emotion/core";
+import ScaleLoader from "react-spinners/ScaleLoader";
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
+// ///////////////////////////////////////////////////
 
 import {
   Badge,
@@ -61,7 +71,9 @@ class PatientListLabs extends Component {
     this.toggleViewLab    = this.toggleViewLab.bind(this);
     this.toggleTakeTest   = this.toggleTakeTest.bind(this);
     this.toggleViewAppointments = this.toggleViewAppointments.bind(this);
+    this.handlePageChangeAppointments = this.handlePageChangeAppointments.bind(this);
     this.toggleMakePayment      = this.toggleMakePayment.bind(this);
+    this.onSubmitFlutterPay     = this.onSubmitFlutterPay.bind(this);
 
     this.onChangeDate       =this.onChangeDate.bind(this);
     this.onChangeHour       =this.onChangeHour.bind(this);
@@ -77,7 +89,7 @@ class PatientListLabs extends Component {
 
     // /////////////////////////////////////////////////////////////////
 
-    this.onSubmitBookAppointment = this.onSubmitBookAppointment.bind(this);
+    this.onSubmitBookAppointment1 = this.onSubmitBookAppointment1.bind(this);
 
     this.state = {
       token: localStorage["appState"]
@@ -88,6 +100,12 @@ class PatientListLabs extends Component {
         : "",
       username: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.username
+        : "",
+      email: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.email
+        : "",
+      telephone: localStorage["appState"]
+        ? JSON.parse(localStorage["appState"]).user.telephone
         : "",
       first_name: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.first_name
@@ -192,7 +210,11 @@ class PatientListLabs extends Component {
       status_lab_result: '1',
       // //////////////////////////////////////
       test_id: "",
-
+      // /////// LOADER ////////////
+      showDiv: "none",
+      loading: false,
+      // //////////////////////////
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -221,6 +243,103 @@ class PatientListLabs extends Component {
 
   // fetch data from db
   componentDidMount()
+  { 
+    this.checkIfProfileCompleted();
+    
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "patient"){
+      hashHistory.push('/premontessori');
+    }else{
+      try {
+        // get the url param
+        var url_string = window.location.href;
+        var transaction_details = url_string.split('?')[1];
+        var transaction_details = transaction_details.split('&');
+        var transaction_status  = transaction_details[0];
+        var transaction_ref     = transaction_details[1];
+        // if successful, verify again before displaying success message for flutter, else display error message
+        if(transaction_status == "success"){
+          const payment_data ={
+            transaction_id : transaction_ref, 
+            email : this.state.email,
+          }
+          axios.post(`/flutterwave_lab_appointment_verify`, payment_data)
+          .then(response => {
+            // console.log(response);
+            return response;
+          })
+          .then(json => {
+            this.getLabs()
+            if (json.data.success) {
+              // console.log(json.data.data)
+              this.setState({ 
+                successMessage: "Payment successful",
+                showSuccess: true
+              });
+            } else{
+              this.setState({ 
+                errorMessage: json.data.data,
+                showError: true
+              });
+            }
+          })
+          .catch(error => {
+            // console.error(`An Error Occuredd! ${error}`);
+          });
+        }else if(transaction_status == "tampered"){
+          this.setState({ 
+            errorMessage: "Transaction error. Transaction has been tampered with",
+            showError: true
+          });
+        }else if(transaction_status == "Fraud"){
+          this.setState({ 
+            errorMessage: "Transaction error. Fraud transaction detected",
+            showError: true
+          });
+        }else if(transaction_status == "No-transaction"){
+          this.setState({ 
+            errorMessage: "No transaction was found",
+            showError: true
+          });
+        }
+        else{
+          this.setState({ 
+            errorMessage: transaction_status,
+            showError: true
+          });
+        }
+      } catch (error) {
+        this.getLabs()
+      }
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
+    .then(response => {
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+        
+      } else {
+        
+      }
+    })
+    .catch(error => {
+      
+    });
+  }
+
+  getLabs()
   {
     axios.get(`/api/patient/labs_list/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
@@ -241,7 +360,7 @@ class PatientListLabs extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -291,7 +410,7 @@ class PatientListLabs extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -323,7 +442,6 @@ class PatientListLabs extends Component {
   }
   // get messages
   getMessages2(lab_id){
-    // alert("Paulo");
     axios.get(`/api/patient/lab/chat/message/get/`+lab_id+'/'+this.state.id+`?token=${this.state.token}`)
       .then(response => {
         return response;
@@ -340,7 +458,7 @@ class PatientListLabs extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
   }
@@ -399,7 +517,7 @@ class PatientListLabs extends Component {
         .catch(error => {
           // redirect user to previous page if user does not have autorization to the page
           // hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);
+          // console.error(`An Error Occuredd! ${error}`);
           
         });
     }
@@ -493,7 +611,7 @@ class PatientListLabs extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -513,12 +631,17 @@ class PatientListLabs extends Component {
           totalItemsCount_lab_test: json.data.data.total,
           activePage_lab_test: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -538,7 +661,12 @@ class PatientListLabs extends Component {
           totalItemsCount_lab_test: json.data.data.total,
           activePage_lab_test: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
   }
 
@@ -556,12 +684,17 @@ class PatientListLabs extends Component {
           totalItemsCount_lab_result: json.data.data.total,
           activePage_lab_result: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -581,7 +714,12 @@ class PatientListLabs extends Component {
           totalItemsCount_lab_result: json.data.data.total,
           activePage_lab_result: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
   }
 
@@ -614,7 +752,7 @@ class PatientListLabs extends Component {
     }
   }
 
-  onSubmitBookAppointment(e)
+  onSubmitBookAppointment1(e)
   { 
     e.preventDefault();
     if(
@@ -626,58 +764,73 @@ class PatientListLabs extends Component {
         showError: true
       });
     }else{
-      // get lab test's fee
-      axios.get(`/api/patient/test_fee/get/`+this.state.lab_id+'/'+this.state.test_id+'/'+this.state.id+`?token=${this.state.token}`)
-      .then(response => {
-        return response;
-      })
-      .then(json => {
-        if (json.data.success) {
-          if(json.data.test_fee != 0){
-            this.setState({ 
-              test_fee: json.data.test_fee,
-              country_handling_fee: json.data.country_handling_fee,
-              total_fee: json.data.total_fee,
-            }, this.toggleMakePayment());
-          }else{
-            this.setState({ 
-              test_fee: json.data.test_fee,
-            country_handling_fee: json.data.country_handling_fee,
-            total_fee: json.data.total_fee,
-            }, this.onSubmitBookAppointment3());
-          }
-        } else {
-          
-        }
-      })
-      .catch(error => {
-        // redirect user to previous page if user does not have autorization to the page
-        // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
-        
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
       });
-    }
-  }
-
-  onSubmitBookAppointment2()
-  {
-      // e.preventDefault();
-      // alert("here");
-      this.setState({ 
-        successMessage: "Payment successful",
-        showSuccess: true,
-      }, this.onSubmitBookAppointment3);
-  }
-
-  onSubmitBookAppointment3()
-  {
+      // ////////////////////////////////
       const appointment_data ={
         date : this.state.date, 
         time: this.state.hour+":"+this.state.minute+" "+this.state.am_pm,
         time_zone: this.state.time_zone, 
         subject : this.state.subject, 
         message : this.state.message, 
-        // /////////////////////////////////////////////
+      }
+      axios.post(`/api/patient/book_test_appointment/`+this.state.lab_id+'/'+this.state.test_id+'/'+this.state.id+`?token=${this.state.token}`, appointment_data)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        // ////////// LOADER //////////////
+          this.setState({
+            showDiv: "none",
+            loading: false,
+          });
+        // ///////////////////////////////
+        if (json.data.success) {
+          if(json.data.test_fee != 0){
+            this.setState({ 
+              test_fee: json.data.test_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+              successMessage: "Successful! Please proceed to make payment.",
+              showSuccess: true
+            }, this.toggleMakePayment());
+          }else{
+            this.setState({ 
+              test_fee: json.data.test_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+              successMessage: "Appointment booked successfully.",
+              showSuccess: true
+            });
+          }
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        this.setState({
+          showError: true
+        });  
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  onSubmitBookAppointment2()
+  { 
+      // ////////////// LOADER ////////////
+      this.setState({
+        successMessage: "Payment successful",
+        showSuccess: true,
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
+      const appointment_data ={
         billing_amount_currency: this.state.billing_amount_currency,
         billing_amount_value: this.state.billing_amount_value,
         billing_test_fee: this.state.test_fee,
@@ -687,14 +840,20 @@ class PatientListLabs extends Component {
         billing_orderID: this.state.billing_orderID,
         billing_payerID: this.state.billing_payerID
       }
-      axios.post(`/api/patient/book_test_appointment/`+this.state.lab_id+'/'+this.state.test_id+'/'+this.state.id+`?token=${this.state.token}`, appointment_data)
+      axios.post(`/api/patient/book_test_appointment_pay/`+this.state.lab_id+'/'+this.state.test_id+'/'+this.state.id+`?token=${this.state.token}`, appointment_data)
       .then(response => {
         return response;
       }, this.toggleMakePayment("close", "close"))
       .then(json => {
+        // ////////// LOADER //////////////
+          this.setState({
+            showDiv: "none",
+            loading: false,
+          });
+        // ///////////////////////////////
         if (json.data.success) {
           this.setState({
-            successMessage: json.data.data,
+            successMessage: "Appointment booked successfully.",
             showSuccess: true
           });
         } else{
@@ -710,6 +869,95 @@ class PatientListLabs extends Component {
         });
         
       });
+  }
+
+  onSubmitFlutterPay(e)
+  {
+    e.preventDefault();
+    const payment_data ={
+      amount : this.state.total_fee, 
+      test_fee : this.state.test_fee,
+      country_handling_fee : this.state.country_handling_fee,
+      username : this.state.username,
+      email : this.state.email, 
+      name : this.state.first_name+" "+this.state.last_name,  
+      phone_number : this.state.telephone, 
+      description : "Laboratory Appontment"
+    }
+    // axios.post(`/flutterwave_pay/appointment`, payment_data)
+    axios.post(`/patient/book_lab_appointment_flutterwave_pay/`+this.state.lab_id+'/'+this.state.test_id+'/'+this.state.id+`?token=${this.state.token}`, payment_data)
+    .then(response => {
+      // console.log(response);
+      return response;
+    })
+    .then(json => {
+      // console.log(json.data.success)
+      if (json.data.success) {
+        // console.log(json.data.data)
+        // this.setState({
+        //   showSuccess: true
+        // });
+        // var win = window.open(json.data.data, '_blank');
+        var win = window.open(json.data.data);
+        win.focus();
+      } else{
+        this.setState({
+          errorMessage: json.data.data,
+          showError: true
+        });
+      }
+    })
+    .catch(error => {
+      // redirect user to previous page if user does not have autorization to the page
+      // hashHistory.push('/premontessori');
+      // console.error(`An Error Occuredd! ${error}`);
+      
+    });
+  }
+
+  getTestPrice(lab_id, test_id)
+  {   
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
+      
+      axios.get(`/api/patient/test_fee/get/`+lab_id+'/'+test_id+'/'+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      }, this.toggleMakePayment("close", "close"))
+      .then(json => {
+        // ////////// LOADER //////////////
+          this.setState({
+            showDiv: "none",
+            loading: false,
+          });
+        // ///////////////////////////////
+        if (json.data.success) {
+            this.setState({
+              lab_id: lab_id,
+              test_id: test_id,
+              test_fee: json.data.test_fee,
+              country_handling_fee: json.data.country_handling_fee,
+              total_fee: json.data.total_fee,
+            }, this.toggleMakePayment());
+        } else{
+          this.setState({
+            successMessage: json.data.data,
+            showError: true
+          });
+        }
+      })
+      .catch(error => {
+        this.setState({
+          showError: true
+        });       
+      });
+    // }
   }
 
   // /////////////// VIEW APPOINTMENTS
@@ -742,14 +990,14 @@ class PatientListLabs extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
 
   handlePageChangeAppointments(pageNumber) {
     // this.setState({activePage: pageNumber});
-    axios.get(`/api/patient/lab_appointments/get/`+this.state.id+`?token=${this.state.token}`)
+    axios.get(`/api/patient/lab_appointments/get/`+this.state.id+`?token=${this.state.token}&page=`+pageNumber)
     .then(response => {
       return response;
     })
@@ -783,6 +1031,22 @@ class PatientListLabs extends Component {
             {/* ///////// LABORATORY LIST TABLE ///////////// */}
             <Col xs="12" lg="12">
               <Card>
+                {/* // ////////// LOADER ////////////// */}
+                  <div className="sweet-loading" style={{position: "fixed", height:"100%", width:"100%", display: this.state.showDiv, top:"50%", left:"50%",zIndex:"1500"}}>
+                    <div style={{position: "absolute", backgroundColor: "#ffffffcf",width:"100px",padding:"15px",borderRadius:"20px" }}>
+                      <ScaleLoader
+                        css={override}
+                        height={50}
+                        width={3}
+                        radius={2}
+                        margin={5}
+                        color={"#2167ac"}
+                        loading={this.state.loading}
+                      />
+                      <h6 style={{color: "#ca333a"}}>Loading...</h6>
+                    </div>
+                  </div>
+                {/* // ///////////////// ////////////// */}
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> List of Laboratories 
                   <span style={{float: "right"}}>
@@ -1095,7 +1359,7 @@ class PatientListLabs extends Component {
                 <i className="fa fa-align-justify"></i>{this.state.patient_name} Appointment
               </CardHeader>
               <CardBody>
-                  <Form onSubmit={this.onSubmitBookAppointment}>
+                  <Form onSubmit={this.onSubmitBookAppointment1}>
                     <Row>
                       <Col xs="12" sm="12">
                         {/* ///////////// APPOINTMENT ///////////*/}
@@ -1315,13 +1579,18 @@ class PatientListLabs extends Component {
                                   this.state.appointments_list.map(appointment=>{
                                     // if status is 1 allow chat else disable chat that is consultation is done
                                     if(appointment.status == 1){
+                                      this.state.status = <Badge color="danger">Make Payment</Badge>;
+                                      this.state.chatBtn = <Button size="sm" onClick={() => this.getTestPrice(appointment.lab_id, appointment.test_id)} className="btn-facebook btn-brand icon mr-1 mb-1"><i className="fa fa-money"></i></Button>;
+                                    }
+                                    if(appointment.status == 2){
                                       this.state.status = <Badge color="success">Open</Badge>;
                                       this.state.chatBtn = <Button size="sm" onClick={() => this.togglePrimary(appointment.lab_id, appointment.lab_name)} className="btn-facebook btn-brand icon mr-1 mb-1"><i className="fa fa-comments"></i></Button>;
                                     }
-                                    if(appointment.status == 2){
+                                    if(appointment.status == 3){
                                       this.state.status = <Badge color="danger">Close</Badge>;
                                       this.state.chatBtn = <Button size="sm" onClick={() => this.togglePrimary(appointment.lab_id, appointment.lab_name)} className="btn-facebook btn-brand icon mr-1 mb-1" disabled><i className="fa fa-comments"></i></Button>;
                                     }
+
                                     return(
                                       <tr key={appointment.id}>
                                         {/* <th scope="row">{this.state.pageNumber++}</th> */}
@@ -1371,7 +1640,7 @@ class PatientListLabs extends Component {
           </ModalFooter>
         </Modal>
 
-        {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+        {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
           <Modal isOpen={this.state.primaryMakePayment} className={'modal-primary ' + this.props.className} style={{maxWidth: "1000px"}}>
             <ModalHeader toggle={() => this.toggleMakePayment("close", "close")}>Make Payment</ModalHeader>
             <ModalBody>
@@ -1396,7 +1665,7 @@ class PatientListLabs extends Component {
                         </ListGroup><br></br>
                         <p style={{marginBottom: "25px"}}>You can pay with your paypal account or with your debit or credit card.</p>
 
-                      <PayPalButton
+                        <PayPalButton
                         amount={this.state.total_fee}
                         
                         // shippingPreference="NO_SHIPPING" // default is "GET_FROM_FILE"
@@ -1413,13 +1682,20 @@ class PatientListLabs extends Component {
                           // console.log(details.purchase_units[0].amount.currency_code)
                           // console.log(details.purchase_units[0].amount.value)
                           return this.onSubmitBookAppointment2()
-
                         }}
+
                         onError={(err) => {
                           alert(err);
                           window.location.reload();
                         }}
-                      />
+
+                        options={{
+                          clientId: "AVx-UESGmRd47pO8XzTG7_vMWsTHaAybTQIhdOHz2vxId7vHZxtzQL07KKs0JN7Z2pECJw4Jk-0KGszf",
+                          // disableFunding: "card"
+                        }}
+                      /><br></br>
+                      <Button type="submit" className="btn-lg" color="primary" onClick={this.onSubmitFlutterPay} style={{width: "100%", backgroundColor: "#c88009"}}>Flutterwave</Button>
+
                     </Col>
                     <Col xs="3" sm="3"></Col>
                   </Row>
@@ -1431,7 +1707,7 @@ class PatientListLabs extends Component {
               <Button color="secondary" onClick={() => this.toggleMakePayment("close", "close")}>Cancel</Button>
             </ModalFooter>
           </Modal>
-          {/* /////////////////////////// PAY WITH PAYPAL //////////////////////////////////// */}
+          {/* /////////////////////////// MAKE PAYMENT //////////////////////////////////// */}
 
        
 

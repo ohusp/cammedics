@@ -1,0 +1,6 @@
+{
+  "name": "AssociateHospitalAccount",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AssociateHospitalAccount.js"
+}

@@ -63,3 +63,12 @@
 .cammedics-color{
     color: #2167ac;
 }
+
+/* for text editor */
+data-contents{
+    max-height: 100px;
+}
+
+.notranslate{
+    max-height: 100px;
+}

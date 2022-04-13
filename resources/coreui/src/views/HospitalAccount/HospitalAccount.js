@@ -76,6 +76,7 @@ class HospitalAccount extends Component {
       user_type: localStorage["appState"]
         ? JSON.parse(localStorage["appState"]).user.user_type
         : "",
+      login_as: "",
     };
     this.handlePageChangeGetAccount=this.handlePageChangeGetAccount.bind(this);
     this.handlePageChangeDoctors = this.handlePageChangeDoctors.bind(this);
@@ -91,32 +92,62 @@ class HospitalAccount extends Component {
 
   componentDidMount()
   {
-    axios.get(`/api/hospital/list_doctors/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "hospital"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/hospital/list_doctors/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("doctors_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            doctors_list: json.data.data.data,
+            itemsCountPerPage_doctors: json.data.data.per_page,
+            totalItemsCount_doctors: json.data.data.total,
+            activePage_doctors: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/hospital/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      // console.log("ROI Cartoon");
-      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        // console.log("doctors_list");
-        // console.log(typeof(json.data.data.data));
-        // console.log(json.data.data.data);
-        this.setState({ 
-          doctors_list: json.data.data.data,
-          itemsCountPerPage_doctors: json.data.data.per_page,
-          totalItemsCount_doctors: json.data.data.total,
-          activePage_doctors: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 
@@ -178,7 +209,7 @@ class HospitalAccount extends Component {
   handlePageChangeGetAccount(pageNumber) {
     // console.log(`active page is ${pageNumber}`);
     // this.setState({activePage: pageNumber});
-    axios.get(`/api/doc/account/`+this.state.id+`?token=${this.state.token}&page=`+pageNumber)
+    axios.get(`/api/hospital/account/`+this.state.id+`?token=${this.state.token}&page=`+pageNumber)
     .then(response => {
       return response;
     })

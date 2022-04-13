@@ -151,7 +151,7 @@ class DocController2 extends Controller
         $validator  = Validator::make($request->all(), [ 
             'first_name'    => 'required|string|max:255', 
             'last_name'     => 'required|string|max:255', 
-            'middle_name'   => 'string|max:255', 
+            'middle_name'   => 'nullable|string|max:255', 
             'zip_code'      => 'required|string|max:255', 
             'telephone'     => 'required|string|max:255', 
             'gender'        => 'integer|max:255', 
@@ -232,8 +232,8 @@ class DocController2 extends Controller
 
     public function patientsList($id)
     {   
-        $patientslist = Doctorbookappointment::where('doc_id', '=', $id)->paginate(10);
-
+        // $patientslist = Doctorbookappointment::where('doc_id', '=', $id)->paginate(10);
+        $patientslist = Doctorbookappointment::where([['doc_id', $id], ['status','!=', 1]])->paginate(10);
         // return $result;
         $response = ['success'=>true, 'data'=>$patientslist];
         return response()->json($response, 201);
@@ -684,7 +684,7 @@ class DocController2 extends Controller
     {   
         $status = 1;
         $appointment = Doctorbookappointment::where([['patient_id', $patient_id], ['doc_id', $doctor_id], ['id', $appointment_id]])->get()->first();
-        $appointment->status = 2;
+        $appointment->status = 3;
         $appointment->save();
 
         $appointmentPayment = Doctorbookappointmentpayment::where([['patient_id', $patient_id], ['doc_id', $doctor_id], ['appointment_id', $appointment_id]])->get()->first();

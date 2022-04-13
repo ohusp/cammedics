@@ -198,6 +198,7 @@ class Patients extends Component {
       errorMessage: "Failed",
       // //////////////////////////////////
       chat_btn_status: false,
+      login_as: "",
 
     };
     this.handlePageChange             = this.handlePageChange.bind(this);
@@ -228,33 +229,37 @@ class Patients extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/admin/patients_list?token=${this.state.token}`)
-    .then(response => {
-      console.log("ROI Cartoon");
-      console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        // console.log("applications_list");
-        // console.log(typeof(json.data.data.data));
-        // console.log(json.data.data.data);
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
-      } else {
-        
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "admin_user"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/admin/patients_list?token=${this.state.token}`)
+      .then(response => {
+        console.log("ROI Cartoon");
+        console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("applications_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+      });
+    }
   }
 
   // Pagination handler

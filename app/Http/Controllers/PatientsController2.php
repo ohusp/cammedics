@@ -48,6 +48,11 @@ use App\Productcart;
 use JWTAuth;
 use JWTAuthException;
 
+use Mail;
+use App\Mail\CompleteAppointment;
+use App\Mail\AppointmentBooked;
+use App\Mail\NewSales;
+
 use Illuminate\Support\Facades\Validator;
 use App\Sanitizes\Sanitizes;
 
@@ -860,6 +865,28 @@ class PatientsController2 extends Controller
         return response()->json($response, 201);
     }
 
+    public function getDocFee($doctor_id, $patient_id)
+    {   
+        $doctor_data = Doctors::where('id', '=', $doctor_id)->first();
+        $doctor_fee  = $doctor_data->consultation_fee;
+        $doctor_country = $doctor_data->country_of_residence;
+
+        // check where country is equal to doctor's country and then get the handling fee
+        $country_data = Countries::where('name', '=', $doctor_country)->first();
+        $country_handling_fee = $country_data->doctor_handling_fee;
+
+        $handling_fee           = $doctor_fee * ($country_handling_fee / 100);
+        $total_fee              = $handling_fee + $doctor_fee;
+
+        $response = ['success'=>true, 
+            'doctor_fee'            => $doctor_fee,
+            'country_handling_fee'  => $handling_fee,
+            'total_fee'             => $total_fee,
+        ];
+
+        return response()->json($response, 201);
+    }
+
     public function bookDocAppointment(Request $request, $doctor_id, $patient_id)
     {   
         // return $request;
@@ -884,20 +911,14 @@ class PatientsController2 extends Controller
         $subject    = Sanitizes::my_sanitize_string( $request->subject );
         $message    = Sanitizes::my_sanitize_string( $request->message );
 
-        $billing_amount_currency        = $request->billing_amount_currency;
-        $billing_amount_value           = $request->billing_amount_value;
-        $billing_doctor_fee             = $request->billing_doctor_fee;
-        $billing_country_handling_fee   = $request->billing_country_handling_fee;
-        $billing_email_address          = $request->billing_email_address;
-        $billing_name                   = $request->billing_name;
-        $billing_orderID                = $request->billing_orderID;
-        $billing_payerID                = $request->billing_payerID;
-
-        $doc_data       = Doctors::where('id', '=', $doctor_id)->first();
-        $doc_username   = $doc_data->username;
-        $doc_first_name = $doc_data->first_name;
-        $doc_last_name  = $doc_data->last_name;
+        $doc_data        = Doctors::where('id', '=', $doctor_id)->first();
+        $doc_username    = $doc_data->username;
+        $doc_first_name  = $doc_data->first_name;
+        $doc_last_name   = $doc_data->last_name;
         $doc_middle_name = $doc_data->middle_name;
+        $doc_email       = $doc_data->email;
+        $doctor_fee      = $doc_data->consultation_fee;
+        $doctor_country  = $doc_data->country_of_residence;
 
         // Get patients details
         $patient_data       = Patients::where('id', '=', $patient_id)->first();
@@ -905,6 +926,7 @@ class PatientsController2 extends Controller
         $patient_first_name = $patient_data->first_name;
         $patient_last_name  = $patient_data->last_name;
         $patient_middle_name= $patient_data->middle_name;
+        $patient_email      = $patient_data->email;
 
         $payload = [
             // id of the test the doctor created the patient should take
@@ -929,27 +951,100 @@ class PatientsController2 extends Controller
                 
         $appointment = new \App\Doctorbookappointment($payload);
         if ($appointment->save())
-        {
-            // $response = ['success'=>true, 'data'=>[
-            //     'last_inserted_id'=>$products->id,
-            // ]];        
-            $paymentDetails = [
-                'appointment_id'                =>$appointment->id,
-                'doc_id'                        =>$doctor_id,
-                'patient_id'                    =>$patient_id,
-                'billing_amount_currency'       =>$billing_amount_currency,
-                'billing_amount_value'          =>$billing_amount_value,
-                'billing_doctor_fee'            =>$billing_doctor_fee,
-                'billing_country_handling_fee'  =>$billing_country_handling_fee,
-                'billing_email_address'         =>$billing_email_address,
-                'billing_name'                  =>$billing_name,
-                'billing_orderID'               =>$billing_orderID,
-                'billing_payerID'               =>$billing_payerID,
-            ];
-            $appointmentPayment = new \App\Doctorbookappointmentpayment($paymentDetails);
-            if($appointmentPayment->save()){
-                $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+        {   
+            ////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////// GET DOCTOR FEE ////////////////////////////////////////
+            // check where country is equal to doctor's country and then get the handling fee
+            $country_data = Countries::where('name', '=', $doctor_country)->first();
+            $country_handling_fee = $country_data->doctor_handling_fee;
+
+            $handling_fee           = $doctor_fee * ($country_handling_fee / 100);
+            $total_fee              = $handling_fee + $doctor_fee;
+
+            // if doctor's fee is = 0 which means no need for payment then appointment completely booked else patient should make payment to complete appointment booking
+            if($total_fee != 0){
+                // ////////// SEND MAIL //////////////////////////
+                $emailDetails = [
+                    'title'         => 'Complete Doctor\'s Appointment',
+                    'name'          => $patient_first_name,
+                    'send_username' => $doc_username,
+                    'send_name'     => $doc_first_name." ".$doc_last_name,
+                    'date'          => $date,
+                    'time'          => $time,
+                    'time_zone'     => $time_zone,
+                    'subject'       => $subject,
+                    'message'       => $message,
+                    'footer'        => 'Powered by: CamMedics'
+                ];
+                // notify patient to make payment to complete appointment
+                Mail::to($patient_email)->send(new CompleteAppointment($emailDetails));
+                $response = ['success'=>true, 
+                    'doctor_fee'            => $doctor_fee,
+                    'country_handling_fee'  => $handling_fee,
+                    'total_fee'             => $total_fee,
+                ];
+
                 return response()->json($response, 201);
+            }else{
+                $appointment->status = "2";
+                $appointment->save();
+
+                $paymentDetails = [
+                    'appointment_id'                =>$appointment->id,
+                    'doc_id'                        =>$doctor_id,
+                    'patient_id'                    =>$patient_id,
+                    'billing_amount_currency'       => "0",
+                    'billing_amount_value'          => "0",
+                    'billing_doctor_fee'            => "0",
+                    'billing_country_handling_fee'  => "0",
+                    'billing_email_address'         => "0",
+                    'billing_name'                  => "0",
+                    'billing_orderID'               => "0",
+                    'billing_payerID'               => "0",
+                ];
+                $appointmentPayment = new \App\Doctorbookappointmentpayment($paymentDetails);
+                if($appointmentPayment->save()){
+        
+                    // ////////// SEND MAIL TO DOCTOR //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $doc_first_name,
+                        'send_username'     => $patient_username,
+                        'send_name'         => $patient_first_name." ".$patient_middle_name." ".$patient_last_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($doc_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+                    // ////////// SEND MAIL TO PATIENT //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $patient_first_name,
+                        'send_username'     => $doc_username,
+                        'send_name'         => $doc_first_name." ".$doc_last_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($patient_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+        
+                    $response = ['success'=>true, 
+                        'doctor_fee'            => $doctor_fee,
+                        'country_handling_fee'  => $handling_fee,
+                        'total_fee'             => $total_fee,
+                    ];
+                    return response()->json($response, 201);
+                }
             }
         }
         else
@@ -957,26 +1052,94 @@ class PatientsController2 extends Controller
             return response()->json($response, 201);
     }
 
-    public function getDocFee($doctor_id, $patient_id)
-    {   
-        $doctor_data = Doctors::where('id', '=', $doctor_id)->first();
-        $doctor_fee  = $doctor_data->consultation_fee;
-        $doctor_country = $doctor_data->country_of_residence;
+    public function bookDocAppointmentPay(Request $request, $doctor_id, $patient_id)
+    {    
+        // return $request;
+        $validator  = Validator::make($request->all(), [  
+            'billing_amount_currency'   => 'required|string|max:255', 
+            'billing_amount_value'      => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_doctor_fee'        => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_country_handling_fee'   => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_email_address'     => 'required|string|max:255',
+            'billing_name'              => 'required|string|max:255',
+            'billing_orderID'           => 'required|string|max:255',
+            'billing_payerID'           => 'required|string|max:255',
+        ]);
 
-        // check where country is equal to doctor's country and then get the handling fee
-        $country_data = Countries::where('name', '=', $doctor_country)->first();
-        $country_handling_fee = $country_data->doctor_handling_fee;
+        // Return validation error
+        if ($validator->fails()) { 
+            $validationError = $validator->errors(); 
+            $response = ['success'=>false, 'data'=>$validationError];
+            return response()->json($response, 201);
+        }
 
-        $handling_fee           = $doctor_fee * ($country_handling_fee / 100);
-        $total_fee              = $handling_fee + $doctor_fee;
+        $billing_amount_currency     = Sanitizes::my_sanitize_string( $request->billing_amount_currency );
+        $billing_amount_value        = Sanitizes::my_sanitize_string( $request->billing_amount_value );
+        $billing_doctor_fee          = Sanitizes::my_sanitize_string( $request->billing_doctor_fee );
+        $billing_country_handling_fee= Sanitizes::my_sanitize_string( $request->billing_country_handling_fee );
+        $billing_email_address       = Sanitizes::my_sanitize_string( $request->billing_email_address );
+        $billing_name                = Sanitizes::my_sanitize_string( $request->billing_name );
+        $billing_orderID             = Sanitizes::my_sanitize_string( $request->billing_orderID );
+        $billing_payerID             = Sanitizes::my_sanitize_string( $request->billing_payerID );
 
-        $response = ['success'=>true, 
-            'doctor_fee'            => $doctor_fee,
-            'country_handling_fee'  => $handling_fee,
-            'total_fee'             => $total_fee,
+        $appointment_data = Doctorbookappointment::where([['doc_id', $doctor_id], ['patient_id', $patient_id], ['status', 1]])->first();
+       
+        $paymentDetails = [
+            'appointment_id'                =>$appointment_data->id,
+            'doc_id'                        =>$doctor_id,
+            'patient_id'                    =>$patient_id,
+            'billing_amount_currency'       =>$billing_amount_currency,
+            'billing_amount_value'          =>$billing_amount_value,
+            'billing_doctor_fee'            =>$billing_doctor_fee,
+            'billing_country_handling_fee'  =>$billing_country_handling_fee,
+            'billing_email_address'         =>$billing_email_address,
+            'billing_name'                  =>$billing_name,
+            'billing_orderID'               =>$billing_orderID,
+            'billing_payerID'               =>$billing_payerID,
         ];
+        $appointmentPayment = new \App\Doctorbookappointmentpayment($paymentDetails);
+        if($appointmentPayment->save()){
+            $appointment_data->status = "2";
+            $appointment_data->save();
 
-        return response()->json($response, 201);
+            $patient_data   = Patients::where('id', '=', $patient_id)->first();
+            $doctor_data    = Doctors::where('id', '=', $doctor_id)->first();
+            // ////////// SEND MAIL TO DOCTOR //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->doc_first_name,
+                'send_username'     => $appointment_data->patient_username,
+                'send_name'         => $appointment_data->patient_first_name." ".$appointment_data->patient_last_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($doctor_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+            // ////////// SEND MAIL TO PATIENT //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->patient_first_name,
+                'send_username'     => $appointment_data->doc_username,
+                'send_name'         => $appointment_data->doc_first_name." ".$appointment_data->doc_last_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($patient_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+
+            $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+            return response()->json($response, 201);
+        }
     }
 
     public function labList()
@@ -1044,19 +1207,12 @@ class PatientsController2 extends Controller
         $subject    = Sanitizes::my_sanitize_string( $request->subject );
         $message    = Sanitizes::my_sanitize_string( $request->message );
 
-        $billing_amount_currency        = $request->billing_amount_currency;
-        $billing_amount_value           = $request->billing_amount_value;
-        $billing_test_fee               = $request->billing_test_fee;
-        $billing_country_handling_fee   = $request->billing_country_handling_fee;
-        $billing_email_address          = $request->billing_email_address;
-        $billing_name                   = $request->billing_name;
-        $billing_orderID                = $request->billing_orderID;
-        $billing_payerID                = $request->billing_payerID;
-
         // Get lab details from username
         $lab_data       = Labs::where('id', '=', $lab_id)->first();
         $lab_username   = $lab_data->username;
         $lab_name       = $lab_data->name;
+        $lab_email      = $lab_data->email;
+        $lab_country    = $lab_data->country;
 
         // Get patients details
         $patient_data       = Patients::where('id', '=', $patient_id)->first();
@@ -1064,6 +1220,7 @@ class PatientsController2 extends Controller
         $patient_first_name = $patient_data->first_name;
         $patient_last_name  = $patient_data->last_name;
         $patient_middle_name= $patient_data->middle_name;
+        $patient_email      = $patient_data->email;
 
         $payload = [
             // id of the test the doctor created the patient should take
@@ -1087,33 +1244,200 @@ class PatientsController2 extends Controller
                 
         $appointment = new \App\Labbookappointment($payload);
         if ($appointment->save())
-        {
-            // $response = ['success'=>true, 'data'=>[
-            //     'last_inserted_id'=>$products->id,
-            // ]];        
-            $paymentDetails = [
-                'appointment_id'                =>$appointment->id,
-                'lab_id'                        =>$lab_id,
-                'test_id'                       =>$test_id,
-                'patient_id'                    =>$patient_id,
-                'billing_amount_currency'       =>$billing_amount_currency,
-                'billing_amount_value'          =>$billing_amount_value,
-                'billing_test_fee'              =>$billing_test_fee,
-                'billing_country_handling_fee'  =>$billing_country_handling_fee,
-                'billing_email_address'         =>$billing_email_address,
-                'billing_name'                  =>$billing_name,
-                'billing_orderID'               =>$billing_orderID,
-                'billing_payerID'               =>$billing_payerID,
-            ];
-            $appointmentPayment = new \App\Labbookappointmentpayment($paymentDetails);
-            if($appointmentPayment->save()){
-                $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+        {   
+            ////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////// GET TEST FEE ////////////////////////////////////////
+            // check where country is equal to lab's country and then get the handling fee
+            $country_data = Countries::where('name', '=', $lab_country)->first();
+            $country_handling_fee = $country_data->lab_handling_fee;
+
+            $test_data  = Labtests::where('id', '=', $test_id)->first();
+            $test_price = $test_data->price;
+
+            $handling_fee   = $test_price * ($country_handling_fee / 100);
+            $total_fee      = $handling_fee + $test_price;
+
+            // if lab's fee is = 0 which means no need for payment then appointment completely booked else patient should make payment to complete appointment booking
+            if($total_fee != 0){
+                // ////////// SEND MAIL //////////////////////////
+                $emailDetails = [
+                    'title'         => 'Complete Laboratory\'s Appointment',
+                    'name'          => $patient_first_name,
+                    'send_username' => $lab_username,
+                    'send_name'     => $lab_name,
+                    'date'          => $date,
+                    'time'          => $time,
+                    'time_zone'     => $time_zone,
+                    'subject'       => $subject,
+                    'message'       => $message,
+                    'footer'        => 'Powered by: CamMedics'
+                ];
+                // notify patient to make payment to complete appointment
+                Mail::to($patient_email)->send(new CompleteAppointment($emailDetails));
+                $response = ['success'=>true, 
+                    'test_fee'              => $test_price,
+                    'country_handling_fee'  => $handling_fee,
+                    'total_fee'             => $total_fee,
+                ];
+
                 return response()->json($response, 201);
+            }else{
+                $appointment->status = "2";
+                $appointment->save();
+
+                $paymentDetails = [
+                    'appointment_id'                =>$appointment->id,
+                    'lab_id'                        =>$lab_id,
+                    'test_id'                       =>$test_id,
+                    'patient_id'                    =>$patient_id,
+                    'billing_amount_currency'       => "0",
+                    'billing_amount_value'          => "0",
+                    'billing_test_fee'              => "0",
+                    'billing_country_handling_fee'  => "0",
+                    'billing_email_address'         => "0",
+                    'billing_name'                  => "0",
+                    'billing_orderID'               => "0",
+                    'billing_payerID'               => "0",
+                ];
+                $appointmentPayment = new \App\Labbookappointmentpayment($paymentDetails);
+                if($appointmentPayment->save()){
+        
+                    // ////////// SEND MAIL TO LABORATORY //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $lab_name,
+                        'send_username'     => $patient_username,
+                        'send_name'         => $patient_first_name." ".$patient_last_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($lab_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+                    // ////////// SEND MAIL TO PATIENT //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $patient_first_name,
+                        'send_username'     => $lab_username,
+                        'send_name'         => $lab_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($patient_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+        
+                    $response = ['success'=>true, 
+                        'test_fee'            => $doctor_fee,
+                        'country_handling_fee'  => $handling_fee,
+                        'total_fee'             => $total_fee,
+                    ];
+                    return response()->json($response, 201);
+                }
             }
         }
         else
             $response = ['success'=>false, 'data'=>'Appointment booking failed'];
             return response()->json($response, 201);
+    }
+
+    public function bookTestAppointmentPay(Request $request, $lab_id, $test_id, $patient_id)
+    {    
+        // return $request;
+        $validator  = Validator::make($request->all(), [  
+            'billing_amount_currency'   => 'required|string|max:255', 
+            'billing_amount_value'      => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_test_fee'          => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_country_handling_fee'   => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_email_address'     => 'required|string|max:255',
+            'billing_name'              => 'required|string|max:255',
+            'billing_orderID'           => 'required|string|max:255',
+            'billing_payerID'           => 'required|string|max:255',
+        ]);
+
+        // Return validation error
+        if ($validator->fails()) { 
+            $validationError = $validator->errors(); 
+            $response = ['success'=>false, 'data'=>$validationError];
+            return response()->json($response, 201);
+        }
+
+        $billing_amount_currency     = Sanitizes::my_sanitize_string( $request->billing_amount_currency );
+        $billing_amount_value        = Sanitizes::my_sanitize_string( $request->billing_amount_value );
+        $billing_test_fee          = Sanitizes::my_sanitize_string( $request->billing_test_fee );
+        $billing_country_handling_fee= Sanitizes::my_sanitize_string( $request->billing_country_handling_fee );
+        $billing_email_address       = Sanitizes::my_sanitize_string( $request->billing_email_address );
+        $billing_name                = Sanitizes::my_sanitize_string( $request->billing_name );
+        $billing_orderID             = Sanitizes::my_sanitize_string( $request->billing_orderID );
+        $billing_payerID             = Sanitizes::my_sanitize_string( $request->billing_payerID );
+
+        $appointment_data = Labbookappointment::where([['test_id', $test_id], ['lab_id', $lab_id], ['patient_id', $patient_id], ['status', 1]])->first();
+       
+        $paymentDetails = [
+            'appointment_id'                =>$appointment_data->id,
+            'lab_id'                        =>$lab_id,
+            'test_id'                       =>$test_id,
+            'patient_id'                    =>$patient_id,
+            'billing_amount_currency'       =>$billing_amount_currency,
+            'billing_amount_value'          =>$billing_amount_value,
+            'billing_test_fee'              =>$billing_test_fee,
+            'billing_country_handling_fee'  =>$billing_country_handling_fee,
+            'billing_email_address'         =>$billing_email_address,
+            'billing_name'                  =>$billing_name,
+            'billing_orderID'               =>$billing_orderID,
+            'billing_payerID'               =>$billing_payerID,
+        ];
+        $appointmentPayment = new \App\Labbookappointmentpayment($paymentDetails);
+        if($appointmentPayment->save()){
+            $appointment_data->status = "2";
+            $appointment_data->save();
+
+            $patient_data   = Patients::where('id', '=', $patient_id)->first();
+            $lab_data    = Labs::where('id', '=', $lab_id)->first();
+            // ////////// SEND MAIL TO LABORATORY //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->lab_name,
+                'send_username'     => $appointment_data->patient_username,
+                'send_name'         => $appointment_data->patient_first_name." ".$appointment_data->patient_last_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($lab_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+            // ////////// SEND MAIL TO PATIENT //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->patient_first_name,
+                'send_username'     => $appointment_data->lab_username,
+                'send_name'         => $appointment_data->lab_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($patient_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+
+            $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+            return response()->json($response, 201);
+        }
     }
 
     public function getLabAppointments($patient_id)
@@ -1195,19 +1519,12 @@ class PatientsController2 extends Controller
         $subject    = Sanitizes::my_sanitize_string( $request->subject );
         $message    = Sanitizes::my_sanitize_string( $request->message );
 
-        $billing_amount_currency        = $request->billing_amount_currency;
-        $billing_amount_value           = $request->billing_amount_value;
-        $billing_port_fee               = $request->billing_port_fee;
-        $billing_country_handling_fee   = $request->billing_country_handling_fee;
-        $billing_email_address          = $request->billing_email_address;
-        $billing_name                   = $request->billing_name;
-        $billing_orderID                = $request->billing_orderID;
-        $billing_payerID                = $request->billing_payerID;
-
-        // Get pharmacy details from username
-        $port_data       = Ports::where('id', '=', $port_id)->first();
-        $port_username   = $port_data->username;
+        $port_data      = Ports::where('id', '=', $port_id)->first();
+        $port_username  = $port_data->username;
         $port_name      = $port_data->name;
+        $port_email     = $port_data->email;
+        $port_fee       = $port_data->consultation_fee;
+        $port_country   = $port_data->country;
 
         // Get patients details
         $patient_data       = Patients::where('id', '=', $patient_id)->first();
@@ -1215,18 +1532,19 @@ class PatientsController2 extends Controller
         $patient_first_name = $patient_data->first_name;
         $patient_last_name  = $patient_data->last_name;
         $patient_middle_name= $patient_data->middle_name;
+        $patient_email      = $patient_data->email;
 
         $payload = [
-            // id of the test the doctor created the patient should take
+            // id of the test the port created the patient should take
             'date'      =>$date,
             'time'      =>$time,
             'time_zone' =>$time_zone,
             'subject'   =>$subject, 
             'message'   =>$message, 
 
-            'port_id'           =>$port_id, 
-            'port_username'     =>$port_username,
-            'port_name'         =>$port_name,
+            'port_id'       =>$port_id, 
+            'port_username' =>$port_username,
+            'port_name'     =>$port_name,
             
             'patient_id'            =>$patient_id,
             'patient_username'      =>$patient_username,
@@ -1237,32 +1555,195 @@ class PatientsController2 extends Controller
                 
         $appointment = new \App\Portbookappointment($payload);
         if ($appointment->save())
-        {
-            // $response = ['success'=>true, 'data'=>[
-            //     'last_inserted_id'=>$products->id,
-            // ]];        
-            $paymentDetails = [
-                'appointment_id'                =>$appointment->id,
-                'port_id'                       =>$port_id,
-                'patient_id'                    =>$patient_id,
-                'billing_amount_currency'       =>$billing_amount_currency,
-                'billing_amount_value'          =>$billing_amount_value,
-                'billing_port_fee'              =>$billing_port_fee,
-                'billing_country_handling_fee'  =>$billing_country_handling_fee,
-                'billing_email_address'         =>$billing_email_address,
-                'billing_name'                  =>$billing_name,
-                'billing_orderID'               =>$billing_orderID,
-                'billing_payerID'               =>$billing_payerID,
-            ];
-            $appointmentPayment = new \App\Portbookappointmentpayment($paymentDetails);
-            if($appointmentPayment->save()){
-                $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+        {   
+            ////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////////// GET PORT FEE ////////////////////////////////////////
+            // check where country is equal to port's country and then get the handling fee
+            $country_data = Countries::where('name', '=', $port_country)->first();
+            $country_handling_fee = $country_data->port_handling_fee;
+
+            $handling_fee   = $port_fee * ($country_handling_fee / 100);
+            $total_fee      = $handling_fee + $port_fee;
+
+            // if port's fee is = 0 which means no need for payment then appointment completely booked else patient should make payment to complete appointment booking
+            if($total_fee != 0){
+                // ////////// SEND MAIL //////////////////////////
+                $emailDetails = [
+                    'title'         => 'Complete Port\'s Appointment',
+                    'name'          => $patient_first_name,
+                    'send_username' => $port_username,
+                    'send_name'     => $port_name,
+                    'date'          => $date,
+                    'time'          => $time,
+                    'time_zone'     => $time_zone,
+                    'subject'       => $subject,
+                    'message'       => $message,
+                    'footer'        => 'Powered by: CamMedics'
+                ];
+                // notify patient to make payment to complete appointment
+                Mail::to($patient_email)->send(new CompleteAppointment($emailDetails));
+                $response = ['success'=>true, 
+                    'port_fee'              => $port_fee,
+                    'country_handling_fee'  => $handling_fee,
+                    'total_fee'             => $total_fee,
+                ];
+
                 return response()->json($response, 201);
+            }else{
+                $appointment->status = "2";
+                $appointment->save();
+
+                $paymentDetails = [
+                    'appointment_id'                =>$appointment->id,
+                    'port_id'                        =>$port_id,
+                    'patient_id'                    =>$patient_id,
+                    'billing_amount_currency'       => "0",
+                    'billing_amount_value'          => "0",
+                    'billing_port_fee'            => "0",
+                    'billing_country_handling_fee'  => "0",
+                    'billing_email_address'         => "0",
+                    'billing_name'                  => "0",
+                    'billing_orderID'               => "0",
+                    'billing_payerID'               => "0",
+                ];
+                $appointmentPayment = new \App\Portbookappointmentpayment($paymentDetails);
+                if($appointmentPayment->save()){
+        
+                    // ////////// SEND MAIL TO PORT //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $port_name,
+                        'send_username'     => $patient_username,
+                        'send_name'         => $patient_first_name." ".$patient_middle_name." ".$patient_last_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($port_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+                    // ////////// SEND MAIL TO PATIENT //////////////////////////
+                    $emailDetails = [
+                        'title'             => 'New Appointment Booked',
+                        'name'              => $patient_first_name,
+                        'send_username'     => $port_username,
+                        'send_name'         => $port_name,
+                        'date'              => $date,
+                        'time'              => $time,
+                        'time_zone'         => $time_zone,
+                        'subject'           => $subject,
+                        'message'           => $message,
+                        'footer'            => 'Powered by: CamMedics'
+                    ];
+        
+                    Mail::to($patient_email)->send(new AppointmentBooked($emailDetails));
+                    // ////////////////////////////////////////////////////////////////////////////////////////
+        
+                    $response = ['success'=>true, 
+                        'port_fee'              => $port_fee,
+                        'country_handling_fee'  => $handling_fee,
+                        'total_fee'             => $total_fee,
+                    ];
+                    return response()->json($response, 201);
+                }
             }
         }
         else
             $response = ['success'=>false, 'data'=>'Appointment booking failed'];
             return response()->json($response, 201);
+    }
+
+    public function bookPortAppointmentPay(Request $request, $port_id, $patient_id)
+    {    
+        // return $request;
+        $validator  = Validator::make($request->all(), [  
+            'billing_amount_currency'   => 'required|string|max:255', 
+            'billing_amount_value'      => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_port_fee'          => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_country_handling_fee'   => 'required|regex:/^\d+(\.\d{1,2})?$/|max:255', 
+            'billing_email_address'     => 'required|string|max:255',
+            'billing_name'              => 'required|string|max:255',
+            'billing_orderID'           => 'required|string|max:255',
+            'billing_payerID'           => 'required|string|max:255',
+        ]);
+
+        // Return validation error
+        if ($validator->fails()) { 
+            $validationError = $validator->errors(); 
+            $response = ['success'=>false, 'data'=>$validationError];
+            return response()->json($response, 201);
+        }
+
+        $billing_amount_currency     = Sanitizes::my_sanitize_string( $request->billing_amount_currency );
+        $billing_amount_value        = Sanitizes::my_sanitize_string( $request->billing_amount_value );
+        $billing_port_fee            = Sanitizes::my_sanitize_string( $request->billing_port_fee );
+        $billing_country_handling_fee= Sanitizes::my_sanitize_string( $request->billing_country_handling_fee );
+        $billing_email_address       = Sanitizes::my_sanitize_string( $request->billing_email_address );
+        $billing_name                = Sanitizes::my_sanitize_string( $request->billing_name );
+        $billing_orderID             = Sanitizes::my_sanitize_string( $request->billing_orderID );
+        $billing_payerID             = Sanitizes::my_sanitize_string( $request->billing_payerID );
+
+        $appointment_data = Portbookappointment::where([['port_id', $port_id], ['patient_id', $patient_id], ['status', 1]])->first();
+       
+        $paymentDetails = [
+            'appointment_id'                =>$appointment_data->id,
+            'port_id'                       =>$port_id,
+            'patient_id'                    =>$patient_id,
+            'billing_amount_currency'       =>$billing_amount_currency,
+            'billing_amount_value'          =>$billing_amount_value,
+            'billing_port_fee'              =>$billing_port_fee,
+            'billing_country_handling_fee'  =>$billing_country_handling_fee,
+            'billing_email_address'         =>$billing_email_address,
+            'billing_name'                  =>$billing_name,
+            'billing_orderID'               =>$billing_orderID,
+            'billing_payerID'               =>$billing_payerID,
+        ];
+        $appointmentPayment = new \App\Portbookappointmentpayment($paymentDetails);
+        if($appointmentPayment->save()){
+            $appointment_data->status = "2";
+            $appointment_data->save();
+
+            $patient_data   = Patients::where('id', '=', $patient_id)->first();
+            $port_data      = Ports::where('id', '=', $port_id)->first();
+            // ////////// SEND MAIL TO PORT //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->port_name,
+                'send_username'     => $appointment_data->patient_username,
+                'send_name'         => $appointment_data->patient_first_name." ".$appointment_data->patient_last_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($port_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+            // ////////// SEND MAIL TO PATIENT //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Appointment Booked',
+                'name'              => $appointment_data->patient_first_name,
+                'send_username'     => $appointment_data->port_username,
+                'send_name'         => $appointment_data->port_name,
+                'date'              => $appointment_data->date,
+                'time'              => $appointment_data->time,
+                'time_zone'         => $appointment_data->time_zone,
+                'subject'           => $appointment_data->subject,
+                'message'           => $appointment_data->message,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($patient_data->email)->send(new AppointmentBooked($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
+
+            $response = ['success'=>true, 'data'=>"Appointment booked successfully"];
+            return response()->json($response, 201);
+        }
     }
 
     public function pharmaciesList()
@@ -1287,7 +1768,7 @@ class PatientsController2 extends Controller
         $products = DB::table('products')
             ->join('productcategories', 'products.category', '=', 'productcategories.id')
             ->select('products.*', 'productcategories.name AS catname')
-            ->where([['products.pharm_id', $pharm_id], ['status', 1]])
+            ->where([['products.pharm_id', $pharm_id], ['products.status', 1]])
             ->paginate(10);
 
         // $products = Product::where('pharm_id', '=', $pharm_id)->paginate(10);
@@ -1327,6 +1808,8 @@ class PatientsController2 extends Controller
             'dosage'        =>$product_data->dosage, 
             'category'      =>$product_data->catname, 
             'price'         =>$product_data->price,
+            'sub_total'     =>$product_data->price,
+            'qty'           =>'1',
             'product_image' =>$product_data->product_image,
         ];
                 
@@ -1373,10 +1856,28 @@ class PatientsController2 extends Controller
         }
     }
 
+    public function deleteProduct(Request $request, $patient_id)
+    {   
+        // return $request;
+        $cart_data = Productcart::where('id', '=', $request->item_id1)->delete();
+        // return $cart_data;
+        // $cart_data->qty = $request->qty;
+        // $cart_data->sub_total = $cart_data->price * $request->qty;
+
+        if($cart_data){
+            $response = ['success'=>true, 'data'=> "Product deleted" ];
+            return response()->json($response, 201);
+        }else{
+            $response = ['success'=>false, 'data'=> "Product delete failed" ];
+            return response()->json($response, 201);
+        }
+    }
+
     public function checkout1($pharm_id, $patient_id)
     {   
         $cart_total     = Productcart::where([['patient_id', $patient_id], ['status', 1]])->sum("sub_total");
         // $cart_data = Productcart::where([['patient_id', $patient_id], ['status', 1]])->get()->all();
+        // return $cart_total;
         $pharm_data     = Pharmacies::where('id', '=', $pharm_id)->first();
         $pharm_country  = $pharm_data->pharm_country;
 
@@ -1414,6 +1915,7 @@ class PatientsController2 extends Controller
         $pharm_data     = Pharmacies::where('id', '=', $pharm_id)->first();
         $pharm_username = $pharm_data->username;
         $pharm_name     = $pharm_data->name;
+        $pharm_email    = $pharm_data->email;
 
         // Get patients details
         $patient_data       = Patients::where('id', '=', $patient_id)->first();
@@ -1457,6 +1959,21 @@ class PatientsController2 extends Controller
             DB::table('productcarts') 
             ->where([['patient_id', $patient_id], ['status', 1]])
             ->update([ 'status' => $status ]);
+
+            // ////////// SEND MAIL //////////////////////////
+            $emailDetails = [
+                'title'             => 'New Sales',
+                'name'              => $pharm_name,
+                'patient_username'  => $patient_username,
+                'patient_name'      => $patient_first_name." ".$patient_middle_name." ".$patient_last_name,
+                'time'              => $billing_create_time,
+                'currency'          => $billing_amount_currency,
+                'total'             => $billing_cart_total,
+                'footer'            => 'Powered by: CamMedics'
+            ];
+
+            Mail::to($pharm_email)->send(new NewSales($emailDetails));
+            // ////////////////////////////////////////////////////////////////////////////////////////
 
             $response = ['success'=>true, 'data'=>"Order successfully"];
             return response()->json($response, 201);

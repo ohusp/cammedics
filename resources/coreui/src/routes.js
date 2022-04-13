@@ -1,6 +1,12 @@
 import React from 'react';
 import HospitalProfile from './views/HospitalProfile/HospitalProfile';
+import AssociateProfile from './views/AssociateProfile/AssociateProfile';
 import HospitalAddDoctor from './views/HospitalAddDoctor/HospitalAddDoctor';
+import AssociateDoctorAdd from './views/AssociateDoctorAdd/AssociateDoctorAdd';
+import AssociateHospitalAdd from './views/AssociateHospitalAdd/AssociateHospitalAdd';
+import AssociateLabAdd from './views/AssociateLabAdd/AssociateLabAdd';
+import AssociatePharmAdd from './views/AssociatePharmAdd/AssociatePharmAdd';
+import AssociatePortAdd from './views/AssociatePortAdd/AssociatePortAdd';
 // import { LabListPatients } from './views';
 
 // //////////////////////////////// ADMIN ////////////////////////////////////////////////
@@ -11,6 +17,9 @@ const Hospitals = React.lazy(() => import('./views/Admin/Hospitals'));
 const Ports = React.lazy(() => import('./views/Admin/Ports'));
 const Pharms = React.lazy(() => import('./views/Admin/Pharms'));
 const Labs = React.lazy(() => import('./views/Admin/Labs'));
+const ContactUs = React.lazy(() => import('./views/Admin/ContactUs'));
+const BookAppointment = React.lazy(() => import('./views/Admin/BookAppointment'));
+const SendEmail = React.lazy(() => import('./views/Admin/SendEmail'));
 
 // //////////////////////////////// USER ///////////////////////////////////////////////////////
 const Dashboard = React.lazy(() => import('./views/Dashboard'));
@@ -24,6 +33,8 @@ const PatientListPorts = React.lazy(() => import('./views/PatientListPorts/Patie
 const PatientCart = React.lazy(() => import('./views/PatientCart/PatientCart'));
 
 const Paystack = React.lazy(() => import('./views/Paystack/Paystack'));
+const LiveChat = React.lazy(() => import('./views/LiveChat/LiveChat'));
+const SpreadLove = React.lazy(() => import('./views/SpreadLove/SpreadLove'));
 
 // /////////////////////////////// PHARM //////////////////////////////////////////////
 const PharmProfile = React.lazy(() => import('./views/PharmProfile/PharmProfile'));
@@ -34,6 +45,11 @@ const DocProfile = React.lazy(() => import('./views/DocProfile/DocProfile'));
 const DocListPatients = React.lazy(() => import('./views/DocListPatients/DocListPatients'));
 const DocAccount = React.lazy(() => import('./views/DocAccount/DocAccount'));
 const HospitalAccount = React.lazy(() => import('./views/HospitalAccount/HospitalAccount'));
+const AssociateDoctorAccount = React.lazy(() => import('./views/AssociateDoctorAccount/AssociateDoctorAccount'));
+const AssociateHospitalAccount = React.lazy(() => import('./views/AssociateHospitalAccount/AssociateHospitalAccount'));
+const AssociateLabAccount = React.lazy(() => import('./views/AssociateLabAccount/AssociateLabAccount'));
+const AssociatePharmAccount = React.lazy(() => import('./views/AssociatePharmAccount/AssociatePharmAccount'));
+const AssociatePortAccount = React.lazy(() => import('./views/AssociatePortAccount/AssociatePortAccount'));
 const PharmAccount = React.lazy(() => import('./views/PharmAccount/PharmAccount'));
 const PortAccount = React.lazy(() => import('./views/PortAccount/PortAccount'));
 const LabAccount = React.lazy(() => import('./views/LabAccount/LabAccount'));
@@ -47,11 +63,19 @@ const LabProfile = React.lazy(() => import('./views/LabProfile/LabProfile'));
 const LabTests = React.lazy(() => import('./views/LabTests/LabTests'));
 const LabListPatients = React.lazy(() => import('./views/LabListPatients/LabListPatients'));
 
-// //////////////////////////// Hospitsl /////////////////////////////////////////////
+// //////////////////////////// Hospital /////////////////////////////////////////////
 const HospitalListDoctors = React.lazy(() => import('./views/HospitalListDoctors/HospitalListDoctors'));
+
+// //////////////////////////// Associate /////////////////////////////////////////////
+const AssociateDoctorsList    = React.lazy(() => import('./views/AssociateDoctorsList/AssociateDoctorsList'));
+const AssociateLabsList       = React.lazy(() => import('./views/AssociateLabsList/AssociateLabsList'));
+const AssociateHospitalsList  = React.lazy(() => import('./views/AssociateHospitalsList/AssociateHospitalsList'));
+const AssociatePharmsList     = React.lazy(() => import('./views/AssociatePharmsList/AssociatePharmsList'));
+const AssociatePortsList      = React.lazy(() => import('./views/AssociatePortsList/AssociatePortsList'));
 
 // ////////////////////////////////////////////////////////////////////////////
 const Chat = React.lazy(() => import('./views/Chat/Chat'));
+const TestPage = React.lazy(() => import('./views/TestPage/TestPage'));
 
 
 const Breadcrumbs = React.lazy(() => import('./views/Base/Breadcrumbs'));
@@ -99,6 +123,9 @@ const routes = [
   { path: '/admin/ports', name: 'Ports List', component: Ports},
   { path: '/admin/pharms', name: 'Pharmacy List', component: Pharms},
   { path: '/admin/labs', name: 'Laboratory List', component: Labs},
+  { path: '/admin/contact_us', name: 'Contact us messages', component: ContactUs},
+  { path: '/admin/book_an_appointment', name: 'General Appointments', component: BookAppointment},
+  { path: '/admin/send_email', name: 'Send an email', component: SendEmail},
 
   // ///////////////////////////// USER ////////////////////////////////////////////////////////////
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
@@ -112,6 +139,8 @@ const routes = [
   { path: '/cart', name: 'Cart', component: PatientCart },
 
   { path: '/Paystack', name: 'Paystack', component: Paystack },
+  { path: '/live_chat', name: 'Live Chat', component: LiveChat },
+  { path: '/spread_the_love', name: 'Spread the Love Concert', component: SpreadLove },
 
   // //////////////////////////// PHARM /////////////////////////////////////////////////
   { path: '/profile_pharm', name: 'Pharmacy Profile', component: PharmProfile },
@@ -123,6 +152,11 @@ const routes = [
   { path: '/doc_list_patients', name: 'List of Patients', component: DocListPatients },
   { path: '/doc_account', name: 'Account', component: DocAccount },
   { path: '/hospital_account', name: 'Account', component: HospitalAccount },
+  { path: '/associate_account', name: 'Doctors Account', component: AssociateDoctorAccount },
+  { path: '/associate_lab_account', name: 'Laboratories Account', component: AssociateLabAccount },
+  { path: '/associate_pharm_account', name: 'Pharmacies Account', component: AssociatePharmAccount },
+  { path: '/associate_hospital_account', name: 'Hospitals Account', component: AssociateHospitalAccount },
+  { path: '/associate_port_account', name: 'Ports Account', component: AssociatePortAccount },
   { path: '/pharm_account', name: 'Account', component: PharmAccount },
   { path: '/lab_account', name: 'Account', component: LabAccount },
   { path: '/port_account', name: 'Account', component: PortAccount },
@@ -140,13 +174,24 @@ const routes = [
 
   // //////////////////////////// HOSPITAL /////////////////////////////////////////////////
   { path: '/profile_hospital', name: 'Hospital Profile', component: HospitalProfile },
+  { path: '/profile_associate', name: 'Associate Profile', component: AssociateProfile },
   { path: '/add_doctor', name: 'Add Doctor', component: HospitalAddDoctor },
+  { path: '/associate_add_doctor', name: 'Add Doctor', component: AssociateDoctorAdd },
+  { path: '/associate_add_hospital', name: 'Add Doctor', component: AssociateHospitalAdd },
+  { path: '/associate_add_lab', name: 'Add Laboratory', component: AssociateLabAdd },
+  { path: '/associate_add_pharm', name: 'Add Pharmacy', component: AssociatePharmAdd },
+  { path: '/associate_add_port', name: 'Add Port', component: AssociatePortAdd },
   { path: '/list_hospital_doctors', name: 'List of doctors', component: HospitalListDoctors },
-
+  { path: '/list_associate_doctors', name: 'List of doctors', component: AssociateDoctorsList },
+  { path: '/list_associate_labs', name: 'List of laboratories', component: AssociateLabsList },
+  { path: '/list_associate_hospitals', name: 'List of hospitals', component: AssociateHospitalsList },
+  { path: '/list_associate_pharms', name: 'List of laboratories', component: AssociatePharmsList },
+  { path: '/list_associate_ports', name: 'List of doctors', component: AssociatePortsList },
 
   // ////////////////////////////////////////////////////////////////////////////////////////////////
   
   { path: '/chat', name: 'Chat', component: Chat },
+  { path: '/test_page', name: 'Test Page', component: TestPage },
   // ////////////////////////////////////////////////////////////////////////////////////////////////
   
   { path: '/', exact: true, name: 'Home' },

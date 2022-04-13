@@ -54,5 +54,27 @@ export default {
       // },
     },
 
+    {
+      name: 'Video Chat',
+      url: '/live_chat',
+      icon: 'icon-camrecorder',
+      attributes: { target: '_blank', rel: "noopener" },
+      // badge: {
+      //   variant: 'info',
+      //   text: 'NEW',
+      // },
+    },
+
+    {
+      name: 'Spread the Love',
+      url: '/spread_the_love',
+      icon: 'icon-heart',
+      // attributes: { target: '_blank', rel: "noopener" },
+      // badge: {
+      //   variant: 'info',
+      //   text: 'NEW',
+      // },
+    },
+
   ],
 };

@@ -143,52 +143,58 @@ class HospitalProfile extends Component {
       primary: false,
 
       share_med_history: "",
-      countries:[]
+      countries:[],
+      login_as: "",
     };
   }
 
   componentDidMount()
   { 
-    axios.get(`/api/hospital/get/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      // console.log("It came back");
-      // console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        // console.log("It came back 2");
-        this.setState({ 
-          name: json.data.data.name,
-          username: json.data.data.username,
-          email: json.data.data.email,
-          zip_code: json.data.data.zip_code,
-          telephone: json.data.data.telephone,
-          country: json.data.data.country,
-
-          district_province_state: json.data.data.district_province_state,
-          address: json.data.data.address,
-          // ///////////////////////////////////////////////////////
-          bank_name: json.data.data.bank_name,
-          bank_account_name: json.data.data.bank_account_name,
-          bank_account_number: json.data.data.bank_account_number,
-
-          logo: json.data.data.logo,
-          medical_certificate: json.data.data.medical_certificate,
-          medical_license: json.data.data.medical_license,
-
-          status: json.data.data.status,
-        }, this.getCountries);
-      } else {
-
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "hospital"){
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    }else{
+      axios.get(`/api/hospital/get/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("It came back");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("It came back 2");
+          this.setState({ 
+            name: json.data.data.name,
+            username: json.data.data.username,
+            email: json.data.data.email,
+            zip_code: json.data.data.zip_code,
+            telephone: json.data.data.telephone,
+            country: json.data.data.country,
+
+            district_province_state: json.data.data.district_province_state,
+            address: json.data.data.address,
+            // ///////////////////////////////////////////////////////
+            bank_name: json.data.data.bank_name,
+            bank_account_name: json.data.data.bank_account_name,
+            bank_account_number: json.data.data.bank_account_number,
+
+            logo: json.data.data.logo,
+            medical_certificate: json.data.data.medical_certificate,
+            medical_license: json.data.data.medical_license,
+
+            status: json.data.data.status,
+          }, this.getCountries);
+        } else {
+
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   // For datepicker
@@ -534,7 +540,7 @@ class HospitalProfile extends Component {
     if (this.state && !this.state.medical_certificate) {
       
     }else{
-      this.state.med_cert_uploaded = "Medical license uploaded"
+      this.state.med_cert_uploaded = "Medical certificate uploaded"
     }
 
     if (this.state && !this.state.medical_license) {

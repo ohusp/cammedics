@@ -31,11 +31,13 @@ class RegisterLab extends Component {
       email: '',
       password: '',
       confirmPassword: '',
+      associate_username: '',
       errorMsg: '',
       errors: {
         email: '',
         password: '',
         confirmPassword: '',
+        associate_username: '',
       },
       alert_message:'',
       // /////// LOADER ////////////
@@ -71,6 +73,11 @@ class RegisterLab extends Component {
       //       ? 'Full Name must be at least 5 characters long!'
       //       : '';
       //   break;
+
+      case 'associate_username': 
+          this.checkAssociateUsername(value);
+        break;
+
       case 'email': 
         errors.email = 
           validEmailRegex.test(value)
@@ -104,14 +111,31 @@ class RegisterLab extends Component {
     this.handleChange(e)
   }
 
+  checkAssociateUsername(value){
+    let errors = this.state.errors;
+    const user_data ={
+      username : value, 
+    }
+    axios.post('api/check/username', user_data)
+    .then(response => {
+      console.log(response)
+      return response;
+    })
+    .then(json => {
+      if (json.data.success) {
+        errors.associate_username = ""
+      }else{
+        errors.associate_username = "The associate username does not exist"
+        this.setState({alert_message:"error"});
+        this.setState({errorMsg:"The associate username does not exist. Please make sure it is correct."});
+      }
+    })
+    .catch(error => {
+    });
+  }
+
   onSubmit(e){
     e.preventDefault()
-    // ////////////// LOADER ////////////
-    this.setState({
-      showDiv: "block",
-      loading: true,
-    });
-    // ////////////////////////////////
     // validate check if fields are empty
     if(this.state.username == "" || this.state.name == "" || this.state.email == "" || this.state.password == "" || this.state.confirmPassword == ""){
       this.setState({alert_message:"error"});
@@ -119,11 +143,18 @@ class RegisterLab extends Component {
 
     // validate check if theres no error in the form 
     }else if(validateForm(this.state.errors)) {
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
       const newUser = {
         username: this.state.username,
         name: this.state.name,
         email: this.state.email,
-        password: this.state.password
+        password: this.state.password,
+        associate_username: this.state.associate_username
       }
 
       const encrypted_user_data = AesEncrypt(newUser, 'where do you go when you by yourself' );
@@ -200,7 +231,7 @@ class RegisterLab extends Component {
                     width="160"
                   />
                 </a>
-                <h5 className="text-center" style={{marginTop: "15px"}}>Laboratories</h5>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Laboratory</h5>
               </div>
               <Card className="mx-4">
                 <CardBody className="p-4">
@@ -308,6 +339,21 @@ class RegisterLab extends Component {
                         noValidate/>
                       </InputGroup>
                     {errors.confirmPassword.length > 0 && <Badge style={{marginBottom: 25}} className="mr-1" color="danger">{errors.confirmPassword}</Badge>}
+
+                    {/* Associate */}
+                    <InputGroup className="mb-3">
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="icon-user"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <input type="text"
+                      className="form-control"
+                      name="associate_username"
+                      placeholder="Enter associate username (optional)"
+                      value={this.state.associate_username}
+                      onChange={this.onChange}/>
+                    </InputGroup>
 
                     <InputGroup className="mb-4" style={{marginLeft: "25px"}}>
                       <Input className="form-check-input" type="checkbox" required />

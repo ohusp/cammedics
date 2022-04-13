@@ -24,7 +24,10 @@ Route::post('/pay/{id}', 'PaymentController@redirectToGateway')->name('pay');
 Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////
+// // /////////////////////// FLUTTER WAVE /////////////////////////////////////////////////////////
+// Route::post('/pay', 'RaveController@initialize')->name('pay');
+// Route::post('/rave/callback', 'RaveController@callback')->name('callback');
+// //////////////////////////////////////////////////////////////////////////////////////////
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -33,6 +36,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('auth:api')->get('/applications', function (Request $request) {
     return $request->applications();
 });
+
 
 // Route::group(['middleware' => ['jwt.auth','api-header']], function () {
     // ///////////////////// ADMIN ////////////////////////////////////////
@@ -43,6 +47,17 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
     //     $response = ['success'=>true, 'data'=>$users];
     //     return response()->json($response, 201);
     // });
+    // //////////////////////////////////////// ADMIN //////////////////////////////////////////////////
+    Route::get('/admin/list_appointments', 'GeneralAppointmentController@index');
+    Route::get('/admin/general_appointments/change_status/{id}', 'GeneralAppointmentController@changeStatus');
+    Route::post('/admin/reply/appointment_message/{id}', 'GeneralAppointmentController@reply');
+
+    Route::get('/admin/list_contacts', 'ContactController@index');
+    Route::get('/admin/contact_us/change_status/{id}', 'ContactController@changeStatus');
+    Route::post('/admin/reply/contact_message/{id}', 'ContactController@reply');
+
+    Route::post('/admin/send/email/{id}', 'SendEmailController@sendEmail');
+    Route::get('/admin/list_emails', 'SendEmailController@index');
 
     Route::get('/admin/patients_list', 'AdminController2@patientsList');
     Route::get('/admin/patient/get/{patient_id}', 'AdminController2@getPatient');
@@ -73,12 +88,21 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
     Route::get('/admin/lab/get/{lab_id}', 'AdminController2@getLab');
     Route::get('/admin/lab/account/{lab_id}', 'AdminController2@labAccount');
     Route::get('/admin/lab/change_account_status/{account_id}', 'AdminController2@changeLabAccountStatus');
+    // //////////////////////////////////////// ADMIN //////////////////////////////////////////////////
 
     // ////////////////////// GENERAL ROUTE /////////////////////////////////////////
     // get all countries
     Route::get('/get/countries', 'CountriesController@index');
     // get all time zones
     Route::get('/get/time_zones', 'TimezoneController@index');
+    // check if associate exist
+    Route::post('check/username', 'AssociateController2@checkUsername');
+    
+    // Video chat
+    Route::post('/save/chat_details/{id}', 'VideoChatController@save');
+    Route::post('/check/appointment_if_exist/{id}', 'VideoChatController@checkIfExist');
+    Route::post('/update/chat_details/{id}', 'VideoChatController@update');
+    Route::post('/update/logout/{id}', 'VideoChatController@logout');
 
     // /////Pateints and Doctors
     Route::get('/patient/doc/chat/message/get/{doctor_id}/{patient_id}', 'MessageController@patientGetDocMessages');
@@ -137,22 +161,28 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
 
         Route::get('/patient/doctors_list/{patient_id}', 'PatientsController2@doctorList');
         Route::get('/patient/doctors/get/{doctor_id}/{patient_id}', 'PatientsController2@viewDoctor');
-        Route::post('/patient/book_doc_appointment/{doctor_id}/{patient_id}', 'PatientsController2@bookDocAppointment');
         Route::get('/patient/doc_appointments/get/{patient_id}', 'PatientsController2@getDocAppointments');
-        Route::get('/patient/doctor_fee/get/{doctor_id}/{patient_id}', 'PatientsController2@getDocFee');
+        // Route::get('/patient/doctor_fee/get/{doctor_id}/{patient_id}', 'PatientsController2@getDocFee');
+        Route::post('/patient/book_doc_appointment/{doctor_id}/{patient_id}', 'PatientsController2@bookDocAppointment');
+        Route::post('/patient/book_doc_appointment_pay/{doctor_id}/{patient_id}', 'PatientsController2@bookDocAppointmentPay');
+        Route::post('/patient/get_doctor_fee/{doctor_id}/{patient_id}', 'PatientsController2@getDocFee');
 
         Route::get('/patient/labs_list/{id}', 'PatientsController2@labList');
         Route::get('/patient/labs/get/{lab_id}/{patient_id}', 'PatientsController2@viewLab');
         Route::get('/patient/test_fee/get/{lab_id}/{test_id}/{patient_id}', 'PatientsController2@getLabFee');
         Route::post('/patient/book_test_appointment/{lab_id}/{test_id}/{patient_id}', 'PatientsController2@bookTestAppointment');
+        Route::post('/patient/book_test_appointment_pay/{lab_id}/{test_id}/{patient_id}', 'PatientsController2@bookTestAppointmentPay');
         Route::get('/patient/lab_appointments/get/{patient_id}', 'PatientsController2@getLabAppointments');
         Route::get('/patient/lab/result/list/{patient_id}/{lab_id}', 'PatientsController2@getLabResults');
 
         Route::get('/patient/ports_list/{id}', 'PatientsController2@portList');
         Route::get('/patient/ports/get/{port_id}/{patient_id}', 'PatientsController2@viewPort');
         Route::get('/patient/port_appointments/get/{patient_id}', 'PatientsController2@getPortAppointments');
-        Route::get('/patient/port_fee/get/{port_id}/{patient_id}', 'PatientsController2@getPortFee');
+        // Route::get('/patient/port_fee/get/{port_id}/{patient_id}', 'PatientsController2@getPortFee');
+        // Route::post('/patient/book_port_appointment/{port_id}/{patient_id}', 'PatientsController2@bookPortAppointment');
         Route::post('/patient/book_port_appointment/{port_id}/{patient_id}', 'PatientsController2@bookPortAppointment');
+        Route::post('/patient/book_port_appointment_pay/{port_id}/{patient_id}', 'PatientsController2@bookPortAppointmentPay');
+        Route::post('/patient/get_port_fee/{port_id}/{patient_id}', 'PatientsController2@getPortFee');
 
         Route::get('/patient/pharm_list/{id}', 'PatientsController2@pharmaciesList');
         Route::get('/patient/pharms/get/{pharm_id}/{patient_id}', 'PatientsController2@viewPharm');
@@ -164,6 +194,7 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
 
         Route::get('/patient/product_in_cart/get_all/{patient_id}', 'PatientsController2@getCartAll');
         Route::post('/patient/product_qty/update/{patient_id}', 'PatientsController2@updateProductQty');
+        Route::post('/patient/product/delete/{patient_id}', 'PatientsController2@deleteProduct');
         Route::get('/patient/product/checkout1/{pharm_id}/{patient_id}', 'PatientsController2@checkout1');
         Route::post('/patient/product/checkout2/{pharm_id}/{patient_id}', 'PatientsController2@checkout2');
 
@@ -258,7 +289,6 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
         Route::get('/lab/get/{id}', 'LabController2@show');
         Route::get('/lab/test/list/{id}', 'LabController2@getLabTest');
         Route::post('/lab/test/add/{id}', 'LabController2@addLabTest');
-        // Route::get('/lab/patients_list/{id}', 'LabController2@patientsList');
         Route::get('/lab/sharedLabTest/get/{patient_id}/{lab_id}', 'LabController2@sharedLabTest');
         Route::get('/lab/labResult/get/{patient_id}/{lab_id}', 'LabController2@getLabResults');
         Route::post('/lab/labResult/save/{patient_id}/{lab_id}', 'LabController2@labTestResultSave');
@@ -276,6 +306,36 @@ Route::middleware('auth:api')->get('/applications', function (Request $request) 
         // Route::get('/doc/patientMedRec/get/{patient_id}/{doctor_id}', 'DocController2@patientMedRec');
 
         Route::post('/lab/account_details/add/{id}', 'LabController2@updateAccountDetails');
+
+    // ///////////////////// ASSOCIATE ////////////////////////////////////////
+        Route::get('/associate/get/{id}', 'AssociateController2@show');
+        Route::post('/associate/update/{id}', 'AssociateController2@update');
+        Route::post('/associate/account_details/add/{id}', 'AssociateController2@updateAccountDetails');
+        Route::post('/associate/updateLogo/{id}', 'AssociateController2@updateLogo');
+        Route::post('/associate/updateCertificate/{id}', 'AssociateController2@updateCertificate');
+
+        Route::post('/associate/doctor/add/{associate_id}', 'DocController@associateAddDoctor');
+        Route::get('/associate/list_doctors/{associate_id}', 'AssociateController2@listDoctors');
+        Route::get('/associate/account/{id}', 'AssociateController2@account');
+        
+        Route::post('/associate/hospital/add/{associate_id}', 'HospitalController@associateAddHospital');
+        Route::get('/associate/list_hospitals/{associate_id}', 'AssociateController2@listHopitals');
+        Route::get('/associate/hospital/list_doctors/{hospital_id}', 'HospitalController2@listDoctors');
+        Route::get('/associate/hospital/doctor_account/{id}', 'AssociateController2@account');
+
+        Route::get('/associate/list_labs/{associate_id}', 'AssociateController2@listLabs');
+        Route::post('/associate/lab/add/{associate_id}', 'LabController@associateAddLab');
+        Route::get('/associate/lab/account/{id}', 'AssociateController2@labAccount');
+
+        Route::get('/associate/list_pharms/{associate_id}', 'AssociateController2@listPharms');
+        Route::post('/associate/pharm/add/{associate_id}', 'PharmController@associateAddPharm');
+        Route::get('/associate/pharm/account/{id}', 'AssociateController2@pharmAccount');
+
+        Route::get('/associate/list_ports/{associate_id}', 'AssociateController2@listPorts');
+        Route::post('/associate/port/add/{associate_id}', 'PortController@associateAddPort');
+        Route::get('/associate/port/account/{id}', 'AssociateController2@portAccount');
+
+    
 // });
 
 Route::group(['middleware' => 'api-header'], function () {
@@ -346,6 +406,38 @@ Route::group(['middleware' => 'api-header'], function () {
     Route::get('/hospital/reset/{code}','PasswordController@resetHospital');
     Route::post('/hospital/check','PasswordController@checkResetPasswordHospital');
     Route::post('/hospital/resetPassword','PasswordController@resetPasswordHospital');
+
+    // ///////////////////// ASSOCIATE /////////////////////////////////////////////
+    Route::post('/associate/register', 'AssociateController@register');
+    Route::post('/associate/login', 'AssociateController@login');
+
+    Route::post('/associate/forgetPassword','PasswordController@forgetPasswordAssociate');
+    Route::get('/associate/reset/{code}','PasswordController@resetAssociate');
+    Route::post('/associate/check','PasswordController@checkResetPasswordAssociate');
+    Route::post('/associate/resetPassword','PasswordController@resetPasswordAssociate');
+    
+    // ///////////////////// ASSOCIATE API////////////////////////////////////////
+
+    Route::post('/associate_api/doctor/add/{username}', 'DocControllerApi@associateAddDoctor');
+    Route::get('/associate_api/list_doctors/{username}', 'DocControllerApi@listDoctors');
+    Route::get('/associate_api/doctor/account/{username}/{doc_username}', 'DocControllerApi@account');
+    
+    Route::post('/associate_api/hospital/add/{username}', 'HospitalControllerApi@associateAddHospital');
+    Route::get('/associate_api/list_hospitals/{username}', 'HospitalControllerApi@listHopitals');
+    Route::get('/associate_api/hospital/list_doctors/{username}/{hospital_username}', 'HospitalControllerApi@listDoctors');
+    Route::get('/associate_api/hospital/doctor_account/{username}/{hospital_username}/{doc_username}', 'HospitalControllerApi@account');
+
+    Route::post('/associate_api/lab/add/{username}', 'LabControllerApi@associateAddLab');
+    Route::get('/associate_api/list_labs/{username}', 'LabControllerApi@listLabs');
+    Route::get('/associate_api/lab/account/{username}/{lab_username}', 'LabControllerApi@account');
+
+    Route::post('/associate_api/pharm/add/{username}', 'PharmControllerApi@associateAddPharm');
+    Route::get('/associate_api/list_pharms/{username}', 'PharmControllerApi@listPharms');
+    Route::get('/associate_api/pharm/account/{username}/{pharm_username}', 'PharmControllerApi@account');
+
+    Route::post('/associate_api/port/add/{username}', 'PortControllerApi@associateAddPort');
+    Route::get('/associate_api/list_ports/{username}', 'PortControllerApi@listPorts');
+    Route::get('/associate_api/port/account/{username}/{port_username}', 'PortControllerApi@account');
     
 });
 // Route::get('SharedMedRec/list/{id}', 'PatientsController2@SharedMedRec');

@@ -113,7 +113,9 @@ class LoginHospital extends Component {
                 }, 100).then(
                   this.props.history.push(`/profile_hospital`)
                 )
-            } else alert("Login Failed!");
+            } else {
+              this.setState({alert_message:"error"});
+            }
 
             $("#login-form button")
                 .removeAttr("disabled")
@@ -148,6 +150,7 @@ class LoginHospital extends Component {
                     width="160"
                   />
                 </a>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Hospital</h5>
               </div>
               <CardGroup>
                 <Card className="p-4">

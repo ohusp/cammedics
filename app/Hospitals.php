@@ -40,6 +40,7 @@ class Hospitals extends Authenticatable implements JWTSubject
         'bank_name', 
         'bank_account_name', 
         'bank_account_number', 
+        'associate',
         'status'
     ];
 

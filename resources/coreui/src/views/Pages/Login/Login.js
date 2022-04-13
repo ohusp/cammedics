@@ -81,10 +81,16 @@ class Login extends Component {
           // ///////////////////////////////
             if (json.data.success) {
                 this.setState({alert_message:"success"});
-                const { id, created_at, auth_token, user_type } = json.data.data;
+                const { id, first_name, last_name, middle_name, username, email, telephone, created_at, auth_token, user_type } = json.data.data;
 
                 let userData = {
                   id,
+                  username,
+                  first_name,
+                  last_name,
+                  middle_name,
+                  email,
+                  telephone,
                   created_at,
                   auth_token,
                   user_type,

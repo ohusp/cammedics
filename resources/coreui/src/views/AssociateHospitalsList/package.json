@@ -1,0 +1,6 @@
+{
+  "name": "AssociateHospitalsList",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AssociateHospitalsList.js"
+}

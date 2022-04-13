@@ -188,6 +188,7 @@ class Doctors extends Component {
 
       status: "",
       doc_status: "",
+      login_as: "",
       
     };
     this.handlePageChangeDoctors=this.handlePageChangeDoctors.bind(this);
@@ -217,33 +218,38 @@ class Doctors extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/admin/list_doctors?token=${this.state.token}`)
-    .then(response => {
-      console.log("ROI Cartoon");
-      console.log(response);
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        console.log("doctors_list");
-        console.log(typeof(json.data.data.data));
-        console.log(json.data.data.data);
-        this.setState({ 
-          doctors_list: json.data.data.data,
-          itemsCountPerPage_doctors: json.data.data.per_page,
-          totalItemsCount_doctors: json.data.data.total,
-          activePage_doctors: json.data.data.current_page
-        });
-      } else {
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "admin_user"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/admin/list_doctors?token=${this.state.token}`)
+      .then(response => {
+        console.log("ROI Cartoon");
+        console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          console.log("doctors_list");
+          console.log(typeof(json.data.data.data));
+          console.log(json.data.data.data);
+          this.setState({ 
+            doctors_list: json.data.data.data,
+            itemsCountPerPage_doctors: json.data.data.per_page,
+            totalItemsCount_doctors: json.data.data.total,
+            activePage_doctors: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
         
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+      });
+    }
   }
 
   // Pagination handler
@@ -1077,10 +1083,6 @@ class Doctors extends Component {
                         </Row>
                         <Table responsive striped>
                           <tbody>
-                            <tr>
-                              <th>Title</th>
-                              <td>{this.state.title}</td>
-                            </tr>
                             <tr>
                               <th>Gender</th>
                               <td>{this.state.gender}</td>

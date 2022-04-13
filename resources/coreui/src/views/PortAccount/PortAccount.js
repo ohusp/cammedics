@@ -62,6 +62,7 @@ class PortAccount extends Component {
 
       fadeIn: true,
       timeout: 300,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -71,27 +72,57 @@ class PortAccount extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/port/account/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "port"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/port/account/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/port/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 

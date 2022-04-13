@@ -82,6 +82,8 @@ class LoginDoc extends Component {
             });
           // ///////////////////////////////
             if (json.data.success) {
+              // console.log(json.data.data);
+              // alert("paul");
                 this.setState({alert_message:"success"});
                 const { id, first_name, last_name, middle_name, username, created_at, auth_token, user_type } = json.data.data;
 
@@ -155,6 +157,7 @@ class LoginDoc extends Component {
                     width="160"
                   />
                 </a>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Doctor</h5>
               </div>
               <CardGroup>
                 <Card className="p-4">

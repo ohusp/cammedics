@@ -7,6 +7,9 @@ import Hospitals from './Hospitals/Hospitals';
 import Ports from './Ports/Ports';
 import Pharms from './Pharms/Pharms';
 import Labs from './Labs/Labs';
+import ContactUs from './ContactUs/ContactUs';
+import BookAppointment from './BookAppointment/BookAppointment';
+import SendEmail from './SendEmail/SendEmail';
 
 export {
   AdminLogin, AdminDashboard,
@@ -16,4 +19,7 @@ export {
   Ports,
   Pharms,
   Labs,
+  ContactUs,
+  BookAppointment,
+  SendEmail,
 };

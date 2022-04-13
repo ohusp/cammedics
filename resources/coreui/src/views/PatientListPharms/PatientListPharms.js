@@ -116,6 +116,7 @@ class PatientListPharms extends Component {
       // ///////////////////////////
       primaryViewPharm: false,
       primaryViewProduct: false,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -128,26 +129,58 @@ class PatientListPharms extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/patient/pharm_list/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+    
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "patient"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/patient/pharm_list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            pharms_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/patient/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        this.setState({ 
-          pharms_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+        
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -205,7 +238,7 @@ class PatientListPharms extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -232,12 +265,17 @@ class PatientListPharms extends Component {
           totalItemsCount_product: json.data.data.total,
           activePage_product: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // hashHistory.push('/premontessori');
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -257,7 +295,12 @@ class PatientListPharms extends Component {
           totalItemsCount_product: json.data.data.total,
           activePage_product: json.data.data.current_page
         });
-      } else alert("Login Failed!");
+      } else {
+        this.setState({
+          errorMessage: "Failed",
+          showError: true
+        });
+      }
     })
   }
   ////////////////////////////////////////////////////////////////////////
@@ -295,7 +338,7 @@ class PatientListPharms extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -363,7 +406,6 @@ class PatientListPharms extends Component {
   }
   // get messages
   getMessages2(pharm_id){
-    // alert("Paulo");
     axios.get(`/api/patient/pharm/chat/message/get/`+pharm_id+'/'+this.state.id+`?token=${this.state.token}`)
       .then(response => {
         return response;
@@ -380,7 +422,7 @@ class PatientListPharms extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
   }
@@ -439,7 +481,7 @@ class PatientListPharms extends Component {
         .catch(error => {
           // redirect user to previous page if user does not have autorization to the page
           // hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);
+          // console.error(`An Error Occuredd! ${error}`);
           
         });
     }

@@ -7,19 +7,39 @@ import { Hospitals } from './Admin';
 import { Ports } from './Admin';
 import { Pharms } from './Admin';
 import { Labs } from './Admin';
+import { ContactUs } from './ContactUs';
+import { BookAppointment } from './BookAppointment';
 
 // /////////////////////////////////////// USER /////////////////////////////////////////////////
-import { Register, RegisterPort, RegisterDoc, RegisterPharm, RegisterLab, RegisterHospital, TermsConditions, PrivacyPolicy, Login, LoginDoc, LoginPharm, LoginPort, Page404, Page500 } from './Pages';
+import { Register, RegisterPort, RegisterDoc, RegisterPharm, RegisterLab, RegisterHospital, RegisterAssociate, TermsConditions, PrivacyPolicy, Login, LoginDoc, LoginPharm, LoginPort, Page404, Page500 } from './Pages';
 import Dashboard from './Dashboard';
+import LiveChat from './LiveChat';
+import SpreadLove from './SpreadLove';
 import PatientProfile from './PatientProfile';
 import PharmProfile from './PharmProfile';
 import HospitalProfile from './HospitalProfile';
+import AssociateProfile from './AssociateProfile';
 import HospitalAddDoctor from './HospitalAddDoctor';
+import AssociateDoctorAdd from './AssociateDoctorAdd/AssociateDoctorAdd';
+import AssociateHospitalAdd from './AssociateHospitalAdd/AssociateHospitalAdd';
+import AssociateLabAdd from './AssociateLabAdd/AssociateLabAdd';
+import AssociatePharmAdd from './AssociatePharmAdd/AssociatePharmAdd';
+import AssociatePortAdd from './AssociatePortAdd/AssociatePortAdd';
 import PharmProducts from './PharmProducts';
 import DocListPatients from './DocListPatients';
 import DocAccount from './DocAccount';
 import HospitalAccount from './HospitalAccount';
+import AssociateDoctorAccount from './AssociateDoctorAccount/AssociateDoctorAccount';
+import AssociateHospitalAccount from './AssociateHospitalAccount';
+import AssociateLabAccount from './AssociateLabAccount/AssociateLabAccount';
+import AssociatePharmAccount from './AssociatePharmAccount/AssociatePharmAccount';
+import AssociatePortAccount from './AssociatePortAccount/AssociatePortAccount';
 import HospitalListDoctors from './HospitalListDoctors';
+import AssociateDoctorsList from './AssociateDoctorsList/AssociateDoctorsList';
+import AssociateLabsList from './AssociateLabsList/AssociateLabsList';
+import AssociateHospitalsList from './AssociateHospitalsList';
+import AssociatePharmsList from './AssociatePharmsList/AssociatePharmsList';
+import AssociatePortsList from './AssociatePortsList/AssociatePortsList';
 import PharmAccount from './PharmAccount';
 import PortAccount from './PortAccount';
 import LabAccount from './LabAccount';
@@ -81,6 +101,8 @@ export {
   Ports,
   Pharms,
   Labs,
+  ContactUs,
+  BookAppointment,
 
   // ////////////////////////////////////// USER /////////////////////////////////////////////
   Register,
@@ -89,6 +111,7 @@ export {
   RegisterPharm,
   RegisterLab,
   RegisterHospital,
+  RegisterAssociate,
 
   TermsConditions,
   PrivacyPolicy,
@@ -100,8 +123,11 @@ export {
   LoginDoc,
   LoginLab,
   LoginHospital,
+  LoginAssociate,
 
   Paystack,
+  LiveChat,
+  SpreadLove,
 
   Dashboard,
   PatientProfile,
@@ -110,11 +136,27 @@ export {
   DocProfile,
   PortProfile,
   HospitalProfile,
+  AssociateProfile,
   HospitalAddDoctor,
+  AssociateDoctorAdd,
+  AssociateHospitalAdd,
+  AssociateLabAdd,
+  AssociatePortAdd,
+  AssociatePharmAdd,
   DocListPatients,
   DocAccount,
   HospitalAccount,
+  AssociateDoctorAccount,
+  AssociateHospitalAccount,
+  AssociateLabAccount,
+  AssociatePharmAccount,
+  AssociatePortAccount,
   HospitalListDoctors,
+  AssociateDoctorsList,
+  AssociateLabsList,
+  AssociateHospitalsList,
+  AssociatePharmsList,
+  AssociatePortsList,
   PharmAccount,
   PortAccount,
   LabAccount,

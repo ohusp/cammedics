@@ -108,7 +108,7 @@ class ResetPasswordLab extends Component {
             this.setState({alert_message:"success"});
             // redirect after 3 secs
             const timer = setTimeout(() => {
-              this.props.history.push('/login')
+              this.props.history.push('/login_lab')
             }, 3000);
             return () => clearTimeout(timer);
           }else{
@@ -154,17 +154,17 @@ class ResetPasswordLab extends Component {
         // if password reset is allowed stay on page, else redirect
           if (json.data.success) {
               
-          } else this.props.history.push(`/login`);
+          } else this.props.history.push(`/login_lab`);
       })
       .catch(err => {
         // if theres error redirect to login page
         // console.log(err)
-        this.props.history.push(`/login`);
+        this.props.history.push(`/login_lab`);
       })
     } catch (error) {
       // if theres error redirect to login page
       // console.log(error)
-      this.props.history.push(`/login`);
+      this.props.history.push(`/login_lab`);
     }
   }
 
@@ -176,12 +176,15 @@ class ResetPasswordLab extends Component {
           <Row className="justify-content-center">
             <Col md="8">
               <div className="mb-3 mx-auto text-center">
-                <img
-                  className=""
-                  src={this.state.avatar}
-                  alt={this.state.Cam_Medics}
-                  width="160"
-                />
+                <a href="https://cammedics.com">
+                  <img
+                    className=""
+                    src={this.state.avatar}
+                    alt={this.state.Cam_Medics}
+                    width="160"
+                  />
+                </a>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Laboratory</h5>
               </div>
               <CardGroup>
                 <Card className="p-4">

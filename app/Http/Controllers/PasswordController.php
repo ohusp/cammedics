@@ -36,7 +36,7 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/patient/reset/'.$patient->ev_code
+                'url' => config('global.link1') . 'api/patient/reset/'.$patient->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
@@ -61,7 +61,7 @@ class PasswordController extends Controller
             $patient->save();
             return redirect("/#/resetpassword_patient?u={$patient->ev_code}");
         }else{
-            return "Patient no exist";
+            return "Patient does not exist";
         }
     }
 
@@ -145,14 +145,16 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/doctor/reset/'.$doctor->ev_code
+                'url' => config('global.link1') . 'api/doctor/reset/'.$doctor->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
     
             // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
         }else{
-            return "Doctor no exist";
+            return "Doctor does not exist";
         }
     }
 
@@ -165,9 +167,9 @@ class PasswordController extends Controller
             // update allow password change
             $doctor->allow_password_change = 1;
             $doctor->save();
-            return redirect("/#/resetpassword?u={$doctor->ev_code}");
+            return redirect("/#/resetpassword_doctor?u={$doctor->ev_code}");
         }else{
-            return "Doctor no exist";
+            return "Doctor does not exist";
         }
     }
 
@@ -250,14 +252,16 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/hospital/reset/'.$hospital->ev_code
+                'url' => config('global.link1') . 'api/hospital/reset/'.$hospital->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
     
             // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
         }else{
-            return "Hospital no exist";
+            return "Hospital does not exist";
         }
     }
 
@@ -270,9 +274,9 @@ class PasswordController extends Controller
             // update allow password change
             $hospital->allow_password_change = 1;
             $hospital->save();
-            return redirect("/#/resetpassword?u={$hospital->ev_code}");
+            return redirect("/#/resetpassword_hospital?u={$hospital->ev_code}");
         }else{
-            return "Hospital no exist";
+            return "Hospital does not exist";
         }
     }
 
@@ -339,6 +343,113 @@ class PasswordController extends Controller
         return response()->json($response, 201);
     }
 
+    // /////////////////////////// ASSOCIATE //////////////////////////////////////////////////////////////////
+    public function forgetPasswordAssociate(Request $request)
+    {   
+        //decrypt request 
+        $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->email);
+        // convert array back to laravel request object
+        $request = new \Illuminate\Http\Request();
+        $request->replace($user);
+
+        $email = Sanitizes::my_sanitize_email( $request->email);
+        $associate = \App\Associates::where('email', $email)->get()->first();
+        if($associate){
+            $myEmail = $email;
+    
+            $details = [
+                'title' => 'Forget Password',
+                'url' => config('global.link1') . 'api/associate/reset/'.$associate->ev_code
+            ];
+    
+            Mail::to($myEmail)->send(new ForgetPasswordMail($details));
+    
+            // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
+        }else{
+            return "Associate does not exist";
+        }
+    }
+
+    public function resetAssociate($code)
+    {   
+        $associate = \App\Associates::where('ev_code', $code)->get()->first();
+        if($associate){
+
+            // return \View::make("login/myTestMail");
+            // update allow password change
+            $associate->allow_password_change = 1;
+            $associate->save();
+            return redirect("/#/resetpassword_associate?u={$associate->ev_code}");
+        }else{
+            return "Associate does not exist";
+        }
+    }
+
+    public function checkResetPasswordAssociate(Request $request)
+    {   
+        $ev_code = Sanitizes::my_sanitize_string( $request->url_string);
+        $associate = \App\Associates::where('ev_code', $ev_code)->get()->first();
+        if($associate){   
+            // check if associate is allowed to change password. This would have been toggled if associate clicks the mail sent to reset password
+            $status = $associate->allow_password_change;
+            if($status == 1){
+                $response = ['success'=>true, 'data'=>'reset password'];
+            }else{
+                $response = ['success'=>false, 'data'=>'Can not reset password'];
+            }
+        }else{
+            $response = ['success'=>false, 'data'=>'Can not reset password'];
+        }
+
+        return response()->json($response, 201);
+    }
+
+    public function resetPasswordAssociate(Request $request)
+    {   
+        //decrypt request 
+        $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->user);
+        // convert array back to laravel request object
+        $request = new \Illuminate\Http\Request();
+        $request->replace($user);
+
+        // Validate
+        $validator = Validator::make($request->all(), [  
+            'password'  => 'required|string|min:8|max:255', 
+        ]);
+        
+        // Return validation error
+        if ($validator->fails()) { 
+            $validationError = $validator->errors(); 
+            $response = ['success'=>false, 'data'=>$validationError];
+            return response()->json($response, 201);
+        }
+
+        // sanitize input
+        $password   = Sanitizes::my_sanitize_string( $request->password);
+        $ev_code    = Sanitizes::my_sanitize_string( $request->url_string);
+
+        // get associate using the ev_code
+        $associate = \App\Associates::where('ev_code', $ev_code)->get()->first();
+
+        // if the associate exist hash password and create new ev_code, update password, ev_code and allow_password_change and save else return error
+        if($associate){
+            $password   = \Hash::make($password);
+            $ev_code    = md5(sprintf("%05x%05x",mt_rand(0,0xffff),mt_rand(0,0xffff)));
+
+            $associate->password = $password;
+            $associate->ev_code  = $ev_code;
+            $associate->allow_password_change = 0;
+            $associate->save();
+            $response = ['success'=>true, 'data'=>'password successfully updated'];
+        }else{
+            // the ev_code is not correct
+            $response = ['success'=>false, 'data'=>'error can\'t reset password'];
+        }
+        return response()->json($response, 201);
+    }
+
     // /////////////////////////// PORT //////////////////////////////////////////////////////////////////
     public function forgetPasswordPort(Request $request)
     {   
@@ -355,14 +466,16 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/port/reset/'.$port->ev_code
+                'url' => config('global.link1') . 'api/port/reset/'.$port->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
     
             // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
         }else{
-            return "port no exist";
+            return "port does not exist";
         }
     }
 
@@ -375,9 +488,9 @@ class PasswordController extends Controller
             // update allow password change
             $port->allow_password_change = 1;
             $port->save();
-            return redirect("/#/resetpassword?u={$port->ev_code}");
+            return redirect("/#/resetpassword_port?u={$port->ev_code}");
         }else{
-            return "Port no exist";
+            return "Port does not exist";
         }
     }
 
@@ -460,14 +573,16 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/pharm/reset/'.$pharm->ev_code
+                'url' => config('global.link1') . 'api/pharm/reset/'.$pharm->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
     
             // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
         }else{
-            return "pharm no exist";
+            return "pharm does not exist";
         }
     }
 
@@ -480,9 +595,9 @@ class PasswordController extends Controller
             // update allow password change
             $pharm->allow_password_change = 1;
             $pharm->save();
-            return redirect("/#/resetpassword?u={$pharm->ev_code}");
+            return redirect("/#/resetpassword_pharm?u={$pharm->ev_code}");
         }else{
-            return "pharm no exist";
+            return "pharm does not exist";
         }
     }
 
@@ -550,7 +665,7 @@ class PasswordController extends Controller
     }
 
     // /////////////////////////// LAB //////////////////////////////////////////////////////////////////
-    public function forgetPassword(Request $request)
+    public function forgetPasswordLab(Request $request)
     {   
         //decrypt request 
         $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->email);
@@ -565,18 +680,20 @@ class PasswordController extends Controller
     
             $details = [
                 'title' => 'Forget Password',
-                'url' => 'http://localhost:8000/api/lab/reset/'.$lab->ev_code
+                'url' => config('global.link1') . 'api/lab/reset/'.$lab->ev_code
             ];
     
             Mail::to($myEmail)->send(new ForgetPasswordMail($details));
     
             // dd("Mail Send Successfully");
+            $response = ['success'=>true, 'data'=>'Email sent successfully'];
+            return response()->json($response, 201);
         }else{
-            return "lab no exist";
+            return "lab does not exist";
         }
     }
 
-    public function reset($code)
+    public function resetLab($code)
     {   
         $lab = \App\Labs::where('ev_code', $code)->get()->first();
         if($lab){
@@ -585,13 +702,13 @@ class PasswordController extends Controller
             // update allow password change
             $lab->allow_password_change = 1;
             $lab->save();
-            return redirect("/#/resetpassword?u={$lab->ev_code}");
+            return redirect("/#/resetpassword_lab?u={$lab->ev_code}");
         }else{
-            return "lab no exist";
+            return "lab does not exist";
         }
     }
 
-    public function checkResetPassword(Request $request)
+    public function checkResetPasswordLab(Request $request)
     {   
         $ev_code = Sanitizes::my_sanitize_string( $request->url_string);
         $lab = \App\Labs::where('ev_code', $ev_code)->get()->first();
@@ -610,7 +727,7 @@ class PasswordController extends Controller
         return response()->json($response, 201);
     }
 
-    public function resetPassword(Request $request)
+    public function resetPasswordLab(Request $request)
     {   
         //decrypt request 
         $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->user);

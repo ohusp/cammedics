@@ -5,7 +5,6 @@ use App\Patients;
 use JWTAuth;
 use JWTAuthException;
 use Mail;
-
 use App\Mail\WelcomeMail;
 
 use Illuminate\Support\Facades\Validator;
@@ -135,7 +134,7 @@ class PatientsController extends Controller
 
     public function register(Request $request)
     {   
-        // return $request;
+        return $request;
         $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->user);
         // convert array back to laravel request object
         $request = new \Illuminate\Http\Request();
@@ -198,11 +197,58 @@ class PatientsController extends Controller
             ];
     
             Mail::to($email)->send(new WelcomeMail($emailDetails));
+            // /////////////////////////////////////////////////////
 
             $response = ['success'=>true, 'data'=>['username'=>$user->username,'first_name'=>$user->first_name,'last_name'=>$user->last_name,'id'=>$user->id,'email'=>$email,'auth_token'=>$token]];        
         }
         else
             $response = ['success'=>false, 'data'=>'Couldnt register user'];
             return response()->json($response, 201);
+    }
+
+    public function quickRegister($username, $email, $first_name, $last_name, $password)
+    {   
+
+        $ev_code = md5(sprintf("%05x%05x",mt_rand(0,0xffff),mt_rand(0,0xffff)));
+
+        $payload = [
+            'password'  =>\Hash::make($password),
+            'username'  =>$username,
+            'email'     =>$email,
+            'first_name'=>$first_name,
+            'last_name' =>$last_name,
+            'auth_token'=> '',
+            'ev_code'   =>$ev_code
+        ];
+                  
+        $user = new \App\Patients($payload);
+        if ($user->save())
+        {
+            
+            $token = self::getToken($email, $password); // generate user token
+            
+            if (!is_string($token))  return response()->json(['success'=>false,'data'=>'Token generation failed'], 201);
+            
+            $user = \App\Patients::where('email', $email)->get()->first();
+            
+            $user->auth_token = $token; // update user token
+            
+            $user->save();
+            // ///////// ADD ROLE ///////////////////////
+            $user->attachRole('user');
+            // ////////// SEND MAIL //////////////////////////
+            $emailDetails = [
+                'title' => 'Welcome to CamMedics',
+                'first_name' => $user->first_name,
+                'url' => 'https://dashboard.cammedics.com/#/login'
+            ];
+    
+            Mail::to($email)->send(new WelcomeMail($emailDetails));
+            // /////////////////////////////////////////////////////
+
+            return true;        
+        }
+        else
+            return false;
     }
 }

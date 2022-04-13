@@ -126,6 +126,7 @@ class PharmListOrders extends Component {
       // ///////////////////////////
       primaryViewOrder: false,
       primaryViewProduct: false,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -138,27 +139,57 @@ class PharmListOrders extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/pharm/order_list/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "pharm"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/pharm/order_list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            order_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/pharm/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        this.setState({ 
-          order_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 
@@ -203,7 +234,7 @@ class PharmListOrders extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -243,7 +274,7 @@ class PharmListOrders extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -291,7 +322,7 @@ class PharmListOrders extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
   }
@@ -350,7 +381,7 @@ class PharmListOrders extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // console.error(`An Error Occuredd! ${error}`);
       });
     }
   }
@@ -418,7 +449,7 @@ class PharmListOrders extends Component {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> List of Orders 
-                  <ExternalLink href="https://live.cammedics.com/">
+                  <ExternalLink href="/#/live_chat">
                     <Button size="sm" color="primary" style={{float: "right"}}>Start a Video Chat</Button>
                   </ExternalLink>
                   <span style={{float: "right"}}>

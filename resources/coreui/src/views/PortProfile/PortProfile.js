@@ -155,48 +155,54 @@ class PortProfile extends Component {
       primary: false,
 
       share_med_history: "",
-      countries:[]
+      countries:[],
+      login_as: "",
     };
   }
 
   componentDidMount()
   { 
-    axios.get(`/api/port/get/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        this.setState({ 
-          address: json.data.data.address,
-          country: json.data.data.country,
-          district_province_state: json.data.data.district_province_state,
-          email: json.data.data.email,
-          name: json.data.data.name,
-          telephone: json.data.data.telephone,
-          username: json.data.data.username,
-          zip_code: json.data.data.zip_code,
-          // //////////////////////////////////////////////
-          consultation_fee: json.data.data.consultation_fee,
-          bank_name: json.data.data.bank_name,
-          bank_account_name: json.data.data.bank_account_name,
-          bank_account_number: json.data.data.bank_account_number,
-          logo: json.data.data.logo,
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "port"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/port/get/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            address: json.data.data.address,
+            country: json.data.data.country,
+            district_province_state: json.data.data.district_province_state,
+            email: json.data.data.email,
+            name: json.data.data.name,
+            telephone: json.data.data.telephone,
+            username: json.data.data.username,
+            zip_code: json.data.data.zip_code,
+            // //////////////////////////////////////////////
+            consultation_fee: json.data.data.consultation_fee,
+            bank_name: json.data.data.bank_name,
+            bank_account_name: json.data.data.bank_account_name,
+            bank_account_number: json.data.data.bank_account_number,
+            logo: json.data.data.logo,
 
-          medical_license: json.data.data.medical_license,
+            medical_license: json.data.data.medical_license,
 
-          status: json.data.data.status,
-        }, this.getCountries);
-      } else {
+            status: json.data.data.status,
+          }, this.getCountries);
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
         
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+      });
+    }
   }
 
   // For datepicker

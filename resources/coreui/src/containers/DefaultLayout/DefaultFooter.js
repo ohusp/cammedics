@@ -15,7 +15,7 @@ class DefaultFooter extends Component {
 
     return (
       <React.Fragment>
-        <span> &copy; 2020 CamMedics.</span>
+        <span> &copy; 2021 CamMedics.</span>
         <span className="ml-auto">Powered by <a href="#">BrickPine</a></span>
       </React.Fragment>
     );

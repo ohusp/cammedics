@@ -1,0 +1,6 @@
+{
+  "name": "AssociateProfile",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AssociateProfile.js"
+}

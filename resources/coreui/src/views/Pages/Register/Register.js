@@ -108,12 +108,6 @@ class Register extends Component {
 
   onSubmit(e){
     e.preventDefault()
-    // ////////////// LOADER ////////////
-    this.setState({
-      showDiv: "block",
-      loading: true,
-    });
-    // ////////////////////////////////
     // validate check if fields are empty
     if(this.state.username == "" || this.state.first_name == "" || this.state.last_name == "" || this.state.email == "" || this.state.password == "" || this.state.confirmPassword == ""){
       this.setState({alert_message:"error"});
@@ -121,6 +115,12 @@ class Register extends Component {
 
     // validate check if theres no error in the form 
     }else if(validateForm(this.state.errors)) {
+      // ////////////// LOADER ////////////
+      this.setState({
+        showDiv: "block",
+        loading: true,
+      });
+      // ////////////////////////////////
       const newUser = {
         username: this.state.username,
         first_name: this.state.first_name,

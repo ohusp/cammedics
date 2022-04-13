@@ -179,10 +179,10 @@ class DefaultHeader extends Component {
       <React.Fragment>
         <AppSidebarToggler className="d-lg-none" display="md" mobile />
         <AppNavbarBrand
-          full={{ src: logo, width: 89, height: 25, alt: 'CoreUI Logo' }}
-          minimized={{ src: sygnet, width: 30, height: 30, alt: 'CoreUI Logo' }}
+          full={{ src: logo, width: 89, height: 25, alt: 'CamMedics Logo' }}
+          minimized={{ src: sygnet, width: 30, height: 30, alt: 'CamMedics Logo' }}
         />
-        <AppSidebarToggler className="d-md-down-none" display="lg" />
+        <AppSidebarToggler id="navigationToggler" className="d-md-down-none" display="lg" />
 
         {/* <Nav className="d-md-down-none" navbar>
           <NavItem className="px-3">
@@ -195,20 +195,24 @@ class DefaultHeader extends Component {
             <NavLink to="#" className="nav-link">Settings</NavLink>
           </NavItem>
         </Nav> */}
+        
         <Nav className="ml-auto" navbar>
-          <NavItem className="d-md-down-none">
+          <NavItem className="">
+              <NavLink to="live_chat" className="nav-link" title="Video chat" target='_blank'><i className="fa fa-video-camera fa-2x mt-0" style={{color: "#ca333a"}}></i></NavLink>
+          </NavItem>
+          {login_from === "patient" && (
+            <NavItem className="" style={{marginTop: "-10px"}}>
             {/* if it is patient that loged in, then display this */}
-            {login_from === "patient" && (
               <NavLink to="#" className="nav-link" replace>
                 <Link to="/cart">
                   {/* <span onClick={() => this.viewCart()}>
                     <i className="fa fa-cart-plus fa-2x mt-4"></i><Badge pill color="danger" style={{padding: "5px 10px", fontSize: "12px"}} >{this.state.product_in_cart}</Badge>
                   </span> */}
-                    <i className="fa fa-cart-plus fa-2x mt-4"></i><Badge pill color="danger" style={{padding: "5px 10px", fontSize: "12px"}} >{this.state.product_in_cart}</Badge>
+                    <i className="fa fa-cart-plus fa-2x mt-2" style={{color: "#2167ac"}}></i><Badge pill color="danger" style={{fontSize: "12px", backgroundColor: "#ca333a", top: "40%"}} >{this.state.product_in_cart}</Badge>
                 </Link>
               </NavLink>
-            )}
-          </NavItem>
+            </NavItem>
+          )}
           {/* <NavItem className="d-md-down-none">
             <NavLink to="#" className="nav-link"><i className="icon-list"></i></NavLink>
           </NavItem>

@@ -21,6 +21,7 @@ import navigation from '../../_nav_patient';
 import navigationDoctor from '../../_nav_doctor';
 import navigationLab from '../../_nav_lab';
 import navigationHospital from '../../_nav_hospital';
+import navigationAssociate from '../../_nav_associate';
 import navigationPharm from '../../_nav_pharm';
 import navigationPort from '../../_nav_port';
 // routes config
@@ -74,6 +75,9 @@ class DefaultLayout extends Component {
     }
     if(login_from == "hospital"){
       this.props.history.push('/login_hospital')
+    }
+    if(login_from == "associate"){
+      this.props.history.push('/login_associate')
     }
     if(login_from == "pharm"){
       this.props.history.push('/login_pharm')
@@ -132,6 +136,11 @@ class DefaultLayout extends Component {
               <AppSidebarNav navConfig={navigationHospital} {...this.props} router={router}/>
               </Suspense>
             )}
+            {login_from === "associate" && (
+              <Suspense>
+              <AppSidebarNav navConfig={navigationAssociate} {...this.props} router={router}/>
+              </Suspense>
+            )}
             {login_from === "pharm" && (
               <Suspense>
               <AppSidebarNav navConfig={navigationPharm} {...this.props} router={router}/>
@@ -151,7 +160,7 @@ class DefaultLayout extends Component {
             <AppSidebarMinimizer />
           </AppSidebar>
           <main className="main">
-            <AppBreadcrumb appRoutes={routes} router={router}/>
+            <span id="navigationPanel" ><AppBreadcrumb appRoutes={routes} router={router}/></span>
             <Container fluid>
               <Suspense fallback={this.loading()}>
                 <Switch>
@@ -182,11 +191,11 @@ class DefaultLayout extends Component {
             </Suspense>
           </AppAside>
         </div>
-        <AppFooter>
+        <span id="footer-bottom" ><AppFooter>
           <Suspense fallback={this.loading()}>
             <DefaultFooter />
           </Suspense>
-        </AppFooter>
+        </AppFooter></span>
       </div>
     );
   }

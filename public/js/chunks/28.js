@@ -62,10 +62,10 @@ var ExternalLink = function (_a) {
 
 /***/ }),
 
-/***/ "./resources/coreui/src/views/Admin/Ports/Ports.js":
-/*!*********************************************************!*\
-  !*** ./resources/coreui/src/views/Admin/Ports/Ports.js ***!
-  \*********************************************************/
+/***/ "./resources/coreui/src/views/Admin/Hospitals/Hospitals.js":
+/*!*****************************************************************!*\
+  !*** ./resources/coreui/src/views/Admin/Hospitals/Hospitals.js ***!
+  \*****************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -230,45 +230,64 @@ function _getPrototypeOf(o) {
 
 var hashHistory = Object(history__WEBPACK_IMPORTED_MODULE_2__["createHashHistory"])();
 
-var Ports = /*#__PURE__*/function (_Component) {
-  _inherits(Ports, _Component);
+var Hospitals = /*#__PURE__*/function (_Component) {
+  _inherits(Hospitals, _Component);
 
-  var _super = _createSuper(Ports);
+  var _super = _createSuper(Hospitals);
 
-  function Ports(props) {
+  function Hospitals(props) {
     var _this$state;
 
     var _this;
 
-    _classCallCheck(this, Ports);
+    _classCallCheck(this, Hospitals);
 
     _this = _super.call(this, props); // ////////////////MODAL    
 
-    _this.togglePortView = function (port_id, name) {
+    _this.toggleHospitalView = function (hospital_id, name) {
       // togglePatientRec(id, name) {
-      console.log(port_id);
-
       _this.setState({
-        portView: !_this.state.portView,
-        port_id: port_id,
-        port_name: name
+        hospitalView: !_this.state.hospitalView,
+        hospital_id: hospital_id,
+        hospital_name: name
       });
     };
 
-    _this.toggleAccountView = function (port_id, name) {
+    _this.toggleViewDoctors = function (hospital_id, name) {
       // togglePatientRec(id, name) {
-      console.log(port_id);
+      // console.log(hospital_id);
+      _this.setState({
+        viewDoctors: !_this.state.viewDoctors,
+        hospital_id: hospital_id,
+        hospital_name: name
+      });
+    };
+
+    _this.toggleDoctorView = function (doctor_id, name) {
+      // togglePatientRec(id, name) {
+      console.log(doctor_id);
+
+      _this.setState({
+        doctorView: !_this.state.doctorView,
+        doctor_id: doctor_id,
+        doctor_name: name
+      });
+    };
+
+    _this.toggleAccountView = function (doctor_id, name) {
+      // togglePatientRec(id, name) {
+      console.log(doctor_id);
 
       _this.setState({
         accountView: !_this.state.accountView,
-        port_id: port_id,
-        port_name: name
+        doctor_id: doctor_id,
+        doctor_name: name
       });
     };
 
-    _this.toggleViewPortPatient = function () {
+    _this.toggleViewDoctorPatient = function () {
       _this.setState({
-        primaryPortPatient: !_this.state.primaryPortPatient
+        primaryDoctorPatient: !_this.state.primaryDoctorPatient
       });
     };
 
@@ -295,9 +314,11 @@ var Ports = /*#__PURE__*/function (_Component) {
       });
     };
 
-    _this.togglePortView = _this.togglePortView.bind(_assertThisInitialized(_this));
+    _this.toggleHospitalView = _this.toggleHospitalView.bind(_assertThisInitialized(_this));
+    _this.toggleViewDoctors = _this.toggleViewDoctors.bind(_assertThisInitialized(_this));
+    _this.toggleDoctorView = _this.toggleDoctorView.bind(_assertThisInitialized(_this));
     _this.toggleAccountView = _this.toggleAccountView.bind(_assertThisInitialized(_this));
-    _this.toggleViewPortPatient = _this.toggleViewPortPatient.bind(_assertThisInitialized(_this));
+    _this.toggleViewDoctorPatient = _this.toggleViewDoctorPatient.bind(_assertThisInitialized(_this));
     _this.togglePrimary = _this.togglePrimary.bind(_assertThisInitialized(_this));
     _this.toggleViewAppointment = _this.toggleViewAppointment.bind(_assertThisInitialized(_this));
     _this.togglePatientRec = _this.togglePatientRec.bind(_assertThisInitialized(_this));
@@ -329,14 +350,23 @@ var Ports = /*#__PURE__*/function (_Component) {
       created_at: localStorage["appState"] ? JSON.parse(localStorage["appState"]).user.created_at : "",
       user_type: localStorage["appState"] ? JSON.parse(localStorage["appState"]).user.user_type : "",
       // ////////////////////////////////////////////////////
-      ports_list: [],
-      number_ports: 1,
-      activePage_ports: 1,
-      itemsCountPerPage_ports: 1,
-      totalItemsCount_ports: 1,
-      pageRangeDisplayed_ports: 3,
-      currentPage2_ports: '',
-      status_ports: '1',
+      hospitals_list: [],
+      number_hospitals: 1,
+      activePage_hospitals: 1,
+      itemsCountPerPage_hospitals: 1,
+      totalItemsCount_hospitals: 1,
+      pageRangeDisplayed_hospitals: 3,
+      currentPage2_hospitals: '',
+      status_hospitals: '1',
+      // ////////////////////////////////////////////////////
+      doctors_list: [],
+      number_doctors: 1,
+      activePage_doctors: 1,
+      itemsCountPerPage_doctors: 1,
+      totalItemsCount_doctors: 1,
+      pageRangeDisplayed_doctors: 3,
+      currentPage2_doctors: '',
+      status_doctors: '1',
       // ////////////////////////////////////////////////////
       account_list: [],
       number_account: 1,
@@ -397,16 +427,21 @@ var Ports = /*#__PURE__*/function (_Component) {
       // patient clicks for message
       patient_id: "",
       patient_name: "",
-      port_id: "",
+      hospital_id: "",
+      hospital_name: "",
+      doctor_id: "",
+      doctor_name: "",
       // /////////////////////////////////////////////////
       startDate: new Date(),
       // //////////////////modal
-      portView: false,
+      hospitalView: false,
+      viewDoctors: false,
+      doctorView: false,
       accountView: false,
       primary: false,
       primaryViewAppointment: false,
       patientRec: false,
-      primaryPortPatient: false,
+      primaryDoctorPatient: false,
       // ///////////////////////////////////////////////////////
       showSuccess: false,
       showError: false,
@@ -414,13 +449,13 @@ var Ports = /*#__PURE__*/function (_Component) {
       errorMessage: "Failed",
       // //////////////////////////////////
       chat_btn_status: false
-    }, _defineProperty(_this$state, "status", ""), _defineProperty(_this$state, "port_status", ""), _this$state);
-    _this.handlePageChangePorts = _this.handlePageChangePorts.bind(_assertThisInitialized(_this));
+    }, _defineProperty(_this$state, "status", ""), _defineProperty(_this$state, "doc_status", ""), _defineProperty(_this$state, "login_as", ""), _this$state);
+    _this.handlePageChangeDoctors = _this.handlePageChangeDoctors.bind(_assertThisInitialized(_this));
     _this.handlePageChange = _this.handlePageChange.bind(_assertThisInitialized(_this));
     return _this;
   }
 
-  _createClass(Ports, [{
+  _createClass(Hospitals, [{
     key: "toggleMedRecTab",
     value: function toggleMedRecTab(tab) {
       if (this.state.activeTab !== tab) {
@@ -505,62 +540,68 @@ var Ports = /*#__PURE__*/function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/list_ports?token=".concat(this.state.token)).then(function (response) {
-        console.log("ROI Cartoon");
-        console.log(response);
-        return response;
-      }).then(function (json) {
-        if (json.data.success) {
-          console.log(_typeof(json.data.data.data));
-          console.log(json.data.data.data);
+      this.state.login_as = localStorage.getItem("login_from");
 
-          _this2.setState({
-            ports_list: json.data.data.data,
-            itemsCountPerPage_ports: json.data.data.per_page,
-            totalItemsCount_ports: json.data.data.total,
-            activePage_ports: json.data.data.current_page
-          });
-        } else {}
-      })["catch"](function (error) {
-        // redirect user to previous page if user does not have autorization to the page
-        // hashHistory.push('/premontessori');
-        console.error("An Error Occuredd! ".concat(error));
-      });
+      if (this.state.login_as != "admin_user") {
+        hashHistory.push('/premontessori');
+      } else {
+        axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/list_hospitals?token=".concat(this.state.token)).then(function (response) {
+          console.log("ROI Cartoon");
+          console.log(response);
+          return response;
+        }).then(function (json) {
+          if (json.data.success) {
+            console.log("doctors_list");
+            console.log(_typeof(json.data.data.data));
+            console.log(json.data.data.data);
+
+            _this2.setState({
+              hospitals_list: json.data.data.data,
+              itemsCountPerPage_hospitals: json.data.data.per_page,
+              totalItemsCount_hospitals: json.data.data.total,
+              activePage_hospitals: json.data.data.current_page
+            });
+          } else {}
+        })["catch"](function (error) {
+          // redirect user to previous page if user does not have autorization to the page
+          // hashHistory.push('/premontessori');
+          console.error("An Error Occuredd! ".concat(error));
+        });
+      }
     } // Pagination handler
 
   }, {
-    key: "handlePageChangePorts",
-    value: function handlePageChangePorts(pageNumber) {
+    key: "handlePageChangeHospitals",
+    value: function handlePageChangeHospitals(pageNumber) {
       var _this3 = this;
 
       console.log("active page is ".concat(pageNumber)); // this.setState({activePage: pageNumber});
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/list_ports?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/list_hospitals?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
         return response;
       }).then(function (json) {
         if (json.data.success) {
           _this3.setState({
-            ports_list: json.data.data.data,
-            itemsCountPerPage_ports: json.data.data.per_page,
-            totalItemsCount_ports: json.data.data.total,
-            activePage_ports: json.data.data.current_page
+            hospitals_list: json.data.data.data,
+            itemsCountPerPage_hospitals: json.data.data.per_page,
+            totalItemsCount_hospitals: json.data.data.total,
+            activePage_hospitals: json.data.data.current_page
           });
         } else {}
       });
-    } // //////////////////// VIEW PORT ///////////////////////////////////////////////////////////
+    } // //////////////////// VIEW HOSPITAL ///////////////////////////////////////////////////////////
 
   }, {
-    key: "viewPort",
-    value: function viewPort(port_id, name) {
+    key: "viewHospital",
+    value: function viewHospital(hospital_id, name) {
       var _this4 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/port/get/" + port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/hospital/get/" + hospital_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("It came back");
         console.log(response);
         return response;
       }).then(function (json) {
         if (json.data.success) {
-          console.log(json.data.med_currently_using);
           console.log(json.status);
 
           _this4.setState({
@@ -576,14 +617,125 @@ var Ports = /*#__PURE__*/function (_Component) {
             bank_name: json.data.data.bank_name,
             bank_account_name: json.data.data.bank_account_name,
             bank_account_number: json.data.data.bank_account_number,
-            consultation_fee: json.data.data.consultation_fee,
             logo: json.data.data.logo,
-            certificate: json.data.data.certificate,
-            status_port: json.data.data.status,
+            medical_certificate: json.data.data.medical_certificate,
+            medical_license: json.data.data.medical_license,
+            status_hospital: json.data.data.status,
             created_at: json.data.data.created_at
-          }, _this4.togglePortView(port_id, name));
+          }, _this4.toggleHospitalView(hospital_id, name));
         } else {
           _this4.setState({
+            errorMessage: json.data.data,
+            showError: true
+          });
+        }
+      })["catch"](function (error) {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error("An Error Occuredd! ".concat(error));
+      });
+    } // /////////////////////////////// VIEW DOCTORS ///////////////////////////////////////////
+
+  }, {
+    key: "viewDoctors",
+    value: function viewDoctors(hospital_id, name) {
+      var _this5 = this;
+
+      this.setState({
+        hospital_id: hospital_id,
+        hospital_name: name
+      });
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/hospital/doc/" + hospital_id + "?token=".concat(this.state.token)).then(function (response) {
+        console.log("ROI Cartoon");
+        console.log(response);
+        return response;
+      }).then(function (json) {
+        if (json.data.success) {
+          _this5.setState({
+            doctors_list: json.data.data.data,
+            itemsCountPerPage_doctors: json.data.data.per_page,
+            totalItemsCount_doctors: json.data.data.total,
+            activePage_doctors: json.data.data.current_page
+          }, _this5.toggleViewDoctors(hospital_id, name));
+        } else {}
+      })["catch"](function (error) {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error("An Error Occuredd! ".concat(error));
+      });
+    }
+  }, {
+    key: "handlePageChangeDoctors",
+    value: function handlePageChangeDoctors(pageNumber) {
+      var _this6 = this;
+
+      console.log("active page is ".concat(pageNumber)); // this.setState({activePage: pageNumber});
+
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/hospital/doc/" + this.state.hospital_id + "?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
+        return response;
+      }).then(function (json) {
+        if (json.data.success) {
+          _this6.setState({
+            doctors_list: json.data.data.data,
+            itemsCountPerPage_doctors: json.data.data.per_page,
+            totalItemsCount_doctors: json.data.data.total,
+            activePage_doctors: json.data.data.current_page
+          });
+        } else {}
+      });
+    } // //////////////////// VIEW DOCTOR ///////////////////////////////////////////////////////////
+
+  }, {
+    key: "viewDoctor",
+    value: function viewDoctor(doctor_id, name) {
+      var _this7 = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/doctor/get/" + doctor_id + "?token=".concat(this.state.token)).then(function (response) {
+        console.log("It came back");
+        console.log(response);
+        return response;
+      }).then(function (json) {
+        if (json.data.success) {
+          console.log(json.data.med_currently_using);
+          console.log(json.status);
+
+          _this7.setState(_defineProperty({
+            // //////////////////////////////////////////////////////
+            contact_address: json.data.data.contact_address,
+            country_of_residence: json.data.data.country_of_residence,
+            created_at: json.data.data.created_at,
+            disabilities: json.data.data.disabilities,
+            district_province_state: json.data.data.district_province_state,
+            dob: json.data.data.dob,
+            email: json.data.data.email,
+            first_name: json.data.data.first_name,
+            gender: json.data.data.gender,
+            gender_others: json.data.data.gender_others,
+            area_of_specialization: json.data.data.area_of_specialization,
+            last_name: json.data.data.last_name,
+            middle_name: json.data.data.middle_name,
+            nationality: json.data.data.nationality,
+            available_on_appointment: json.data.data.available_on_appointment,
+            available_on_emergency: json.data.data.available_on_emergency,
+            available_by_time: json.data.data.available_by_time,
+            profile_picture: json.data.data.profile_picture,
+            status: json.data.data.status,
+            telephone: json.data.data.telephone,
+            title: json.data.data.title,
+            username: json.data.data.username,
+            // weight: json.data.data.weight,
+            zip_code: json.data.data.zip_code,
+            medical_certificate: json.data.data.medical_certificate,
+            medical_license: json.data.data.medical_license,
+            bank_name: json.data.data.bank_name,
+            bank_account_name: json.data.data.bank_account_name,
+            bank_account_number: json.data.data.bank_account_number,
+            consultation_fee: json.data.data.consultation_fee,
+            hospital: json.data.data.hospital,
+            hospital_name: json.data.data.name
+          }, "status", json.data.status), _this7.toggleDoctorView(doctor_id, name));
+        } else {
+          _this7.setState({
             errorMessage: json.data.data,
             showError: true
           });
@@ -597,25 +749,25 @@ var Ports = /*#__PURE__*/function (_Component) {
 
   }, {
     key: "viewAccount",
-    value: function viewAccount(port_id, name) {
-      var _this5 = this;
+    value: function viewAccount(doctor_id, name) {
+      var _this8 = this;
 
       this.setState({
-        port_id: port_id,
-        port_name: name
+        doctor_id: doctor_id,
+        doctor_name: name
       });
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/port/account/" + port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/doc/account/" + doctor_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
       }).then(function (json) {
         if (json.data.success) {
-          _this5.setState({
+          _this8.setState({
             account_list: json.data.data.data,
             itemsCountPerPage_account: json.data.data.per_page,
             totalItemsCount_account: json.data.data.total,
             activePage_account: json.data.data.current_page
-          }, _this5.toggleAccountView(port_id, name));
+          }, _this8.toggleAccountView(doctor_id, name));
         } else {}
       })["catch"](function (error) {
         // redirect user to previous page if user does not have autorization to the page
@@ -626,15 +778,15 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "handlePageChangeAccount",
     value: function handlePageChangeAccount(pageNumber) {
-      var _this6 = this;
+      var _this9 = this;
 
       console.log("active page is ".concat(pageNumber)); // this.setState({activePage: pageNumber});
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/port/account/" + this.state.port_id + "?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/doc/account/" + this.state.doctor_id + "?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
         return response;
       }).then(function (json) {
         if (json.data.success) {
-          _this6.setState({
+          _this9.setState({
             account_list: json.data.data.data,
             itemsCountPerPage_account: json.data.data.per_page,
             totalItemsCount_account: json.data.data.total,
@@ -644,14 +796,14 @@ var Ports = /*#__PURE__*/function (_Component) {
       });
     }
   }, {
-    key: "viewPortPatient",
-    value: function viewPortPatient(port_id) {
-      var _this7 = this;
+    key: "viewDoctorPatient",
+    value: function viewDoctorPatient(doctor_id) {
+      var _this10 = this;
 
       this.setState({
-        port_id: port_id
+        doctor_id: doctor_id
       });
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/patients_list/" + port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/patients_list/" + doctor_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
@@ -661,12 +813,12 @@ var Ports = /*#__PURE__*/function (_Component) {
           console.log(_typeof(json.data.data.data));
           console.log(json.data.data.data);
 
-          _this7.setState({
+          _this10.setState({
             applications_list: json.data.data.data,
             itemsCountPerPage: json.data.data.per_page,
             totalItemsCount: json.data.data.total,
             activePage: json.data.data.current_page
-          }, _this7.toggleViewPortPatient);
+          }, _this10.toggleViewDoctorPatient);
         } else {}
       })["catch"](function (error) {
         // redirect user to previous page if user does not have autorization to the page
@@ -677,15 +829,15 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "handlePageChange",
     value: function handlePageChange(pageNumber) {
-      var _this8 = this;
+      var _this11 = this;
 
       console.log("active page is ".concat(pageNumber)); // this.setState({activePage: pageNumber});
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/patients_list/" + this.state.port_id + "?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/patients_list/" + this.state.doctor_id + "?token=".concat(this.state.token, "&page=") + pageNumber).then(function (response) {
         return response;
       }).then(function (json) {
         if (json.data.success) {
-          _this8.setState({
+          _this11.setState({
             applications_list: json.data.data.data,
             itemsCountPerPage: json.data.data.per_page,
             totalItemsCount: json.data.data.total,
@@ -722,21 +874,21 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "getMessages1",
     value: function getMessages1() {
-      var _this9 = this;
+      var _this12 = this;
 
       this.getMessages2();
       this.interval = setInterval(function () {
-        return _this9.getMessages2();
+        return _this12.getMessages2();
       }, 5000);
     } // get messages
 
   }, {
     key: "getMessages2",
     value: function getMessages2() {
-      var _this10 = this; // alert("Paulo");
+      var _this13 = this; // alert("Paulo");
 
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/patient/chat/message/get/" + this.state.patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/patient/chat/message/get/" + this.state.patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
@@ -748,9 +900,9 @@ var Ports = /*#__PURE__*/function (_Component) {
         if (json.data.success) {
           //   console.log("applications_list");
           //   console.log(json.data.data.data);
-          _this10.setState({
+          _this13.setState({
             message_list: json.data.messages.message
-          }, _this10.loadMessages(json.data.messages.message));
+          }, _this13.loadMessages(json.data.messages.message));
         } else {}
       })["catch"](function (error) {
         // redirect user to previous page if user does not have autorization to the page
@@ -765,7 +917,7 @@ var Ports = /*#__PURE__*/function (_Component) {
       // empty message area before adding new message
       jquery__WEBPACK_IMPORTED_MODULE_4___default()('#message_area').empty();
       passMessageArray.forEach(this.splitMessage);
-    } // split the messages to know that of port and patient
+    } // split the messages to know that of doctor and patient
 
   }, {
     key: "splitMessage",
@@ -776,11 +928,11 @@ var Ports = /*#__PURE__*/function (_Component) {
       var message = item_split[2];
       var fileName = item_split[3].slice(0, -1);
 
-      if (from == "port") {
+      if (from == "doctor") {
         jquery__WEBPACK_IMPORTED_MODULE_4___default()("#message_area").append("<li style='background-color: rgb(33, 103, 172); color: rgb(255, 255, 255); padding: 5px 10px; margin: 5px; border-radius: 10px;'>" + message + "</li>");
       } else if (from == "patient") {
         jquery__WEBPACK_IMPORTED_MODULE_4___default()("#message_area").append("<li style='background-color: #ca333a; color: rgb(255, 255, 255); padding: 5px 10px; margin: 5px; border-radius: 10px;'>" + message + "</li>");
-      } else if (from == "port_file") {
+      } else if (from == "doctor_file") {
         jquery__WEBPACK_IMPORTED_MODULE_4___default()("#message_area").append("<a href='" + message + "' target='_blank'><li style='background-color: rgb(33, 103, 172); color: rgb(255, 255, 255); padding: 5px 10px; margin: 5px; border-radius: 10px;'>" + fileName + "<i class='fa fa-paperclip' style='font-size: 1.5em; float: right'></i></li></a>");
       } else if (from == "patient_file") {
         jquery__WEBPACK_IMPORTED_MODULE_4___default()("#message_area").append("<a href='" + message + "' target='_blank'><li style='background-color: #ca333a; color: rgb(255, 255, 255); padding: 5px 10px; margin: 5px; border-radius: 10px;'>" + fileName + "<i class='fa fa-paperclip' style='font-size: 1.5em; float: right'></i></li></a>");
@@ -809,7 +961,7 @@ var Ports = /*#__PURE__*/function (_Component) {
       var send_message = {
         message: message
       };
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/api/port/patient/chat/message/send/" + this.state.patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token), send_message).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/api/doc/patient/chat/message/send/" + this.state.patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token), send_message).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
@@ -838,7 +990,7 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "submitSendFile",
     value: function submitSendFile(e) {
-      var _this11 = this; // e.preventDefault() // Stop form submit
+      var _this14 = this; // e.preventDefault() // Stop form submit
 
 
       this.uploadSendFile().then(function (response) {
@@ -853,7 +1005,7 @@ var Ports = /*#__PURE__*/function (_Component) {
             // });
           }
       })["catch"](function (error) {
-        _this11.setState({
+        _this14.setState({
           showError: true
         });
       });
@@ -861,7 +1013,7 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "uploadSendFile",
     value: function uploadSendFile() {
-      var url = '/api/port/patient/chat/file/send/' + this.state.patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token);
+      var url = '/api/doc/patient/chat/file/send/' + this.state.patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token);
       var formData = new FormData();
       formData.append('send_file', this.state.send_file);
       var config = {
@@ -876,10 +1028,10 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "getPateintMedicalRec",
     value: function getPateintMedicalRec(patient_id, name) {
-      var _this12 = this; // get patient medical records to display in modal
+      var _this15 = this; // get patient medical records to display in modal
 
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/patientMedRec/get/" + patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/patientMedRec/get/" + patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("It came back");
         console.log(response);
         return response;
@@ -889,7 +1041,7 @@ var Ports = /*#__PURE__*/function (_Component) {
           console.log(json.data.med_currently_using);
           console.log(json.status);
 
-          _this12.setState({
+          _this15.setState({
             // //////////////////////////////////////////////////////
             medications_currently_using: json.data.med_currently_using,
             allergies: json.data.med_allergies,
@@ -903,9 +1055,9 @@ var Ports = /*#__PURE__*/function (_Component) {
             note: json.data.med_note,
             personal_data: json.data.personal_data,
             status: json.data.status
-          }, _this12.togglePatientRec(patient_id, name));
+          }, _this15.togglePatientRec(patient_id, name));
         } else {
-          _this12.setState({
+          _this15.setState({
             errorMessage: json.data.data,
             showError: true
           });
@@ -920,14 +1072,14 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "viewAppointment",
     value: function viewAppointment(patient_id, name) {
-      var _this13 = this;
+      var _this16 = this;
 
       this.setState({
         patient_id: patient_id,
         patient_name: name
       }); // get patient medical records to display in modal
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/appointment/get/" + patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/appointment/get/" + patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("It came back");
         console.log(response);
         return response;
@@ -935,7 +1087,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         if (json.data.success) {
           console.log(json.data);
 
-          _this13.setState({
+          _this16.setState({
             // //////////////////////////////////////////////////////
             appointment_id: json.data.data.id,
             appointment_date: json.data.data.date,
@@ -947,25 +1099,25 @@ var Ports = /*#__PURE__*/function (_Component) {
             appointment_patient_last_name: json.data.data.patient_last_name,
             appointment_patient_middle_name: json.data.data.patient_middle_name,
             appointment_status: json.data.data.status
-          }, _this13.toggleViewAppointment());
+          }, _this16.toggleViewAppointment());
 
-          if (_this13.state.appointment_status == 1) {
-            _this13.setState({
+          if (_this16.state.appointment_status == 1) {
+            _this16.setState({
               appointment_status: 'Open',
               appointment_status_color: 'success',
               chat_btn_status: false
             });
           }
 
-          if (_this13.state.appointment_status == 2) {
-            _this13.setState({
+          if (_this16.state.appointment_status == 2) {
+            _this16.setState({
               appointment_status: 'Close',
               appointment_status_color: 'danger',
               chat_btn_status: true
             });
           }
         } else {
-          _this13.setState({
+          _this16.setState({
             errorMessage: json.data.data,
             showError: true
           });
@@ -980,10 +1132,10 @@ var Ports = /*#__PURE__*/function (_Component) {
     key: "endAppointment",
     /////////////////////////////// End Appointment ///////////////////////////
     value: function endAppointment() {
-      var _this14 = this; // get patient medical records to display in modal
+      var _this17 = this; // get patient medical records to display in modal
 
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/port/appointment/end/" + this.state.patient_id + '/' + this.state.port_id + '/' + this.state.appointment_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/doc/appointment/end/" + this.state.patient_id + '/' + this.state.doctor_id + '/' + this.state.appointment_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("It came back");
         console.log(response);
         return response;
@@ -991,12 +1143,12 @@ var Ports = /*#__PURE__*/function (_Component) {
         if (json.data.success) {
           console.log(json.data.data);
 
-          _this14.setState({
+          _this17.setState({
             successMessage: json.data.data,
             showSuccess: true
-          }, _this14.toggleViewAppointment());
+          }, _this17.toggleViewAppointment());
         } else {
-          _this14.setState({
+          _this17.setState({
             errorMessage: json.data.data,
             showError: true
           });
@@ -1011,7 +1163,7 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "onSubmitMedicalRec",
     value: function onSubmitMedicalRec(e) {
-      var _this15 = this;
+      var _this18 = this;
 
       e.preventDefault();
       var med_rec_data = {
@@ -1026,8 +1178,8 @@ var Ports = /*#__PURE__*/function (_Component) {
         med_lab_test: this.state.lab_test_update,
         med_note: this.state.note_update
       };
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/api/port/patientMedRec/update/" + this.state.patient_id + '/' + this.state.port_id + "?token=".concat(this.state.token), med_rec_data) // axios.post(`/api/products/add?token=${this.state.token}`, product_data)
-      // axios.post('/api/products/add', product_data, {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/api/doc/patientMedRec/update/" + this.state.patient_id + '/' + this.state.doctor_id + "?token=".concat(this.state.token), med_rec_data) // axios.post(`api/products/add?token=${this.state.token}`, product_data)
+      // axios.post('api/products/add', product_data, {
       //     headers: {
       //         'Content-Type': 'application/json',
       //         'Authorization': 'Bearer '+ `${this.state.token}`
@@ -1039,12 +1191,12 @@ var Ports = /*#__PURE__*/function (_Component) {
         return response;
       }).then(function (json) {
         if (json.data.success) {
-          _this15.setState({
+          _this18.setState({
             successMessage: "Updated successfully",
             showSuccess: true
-          }, _this15.componentDidMount());
+          }, _this18.componentDidMount());
         } else {
-          _this15.setState({
+          _this18.setState({
             errorMessage: "Updated failed",
             showError: true
           });
@@ -1056,14 +1208,14 @@ var Ports = /*#__PURE__*/function (_Component) {
       });
     }
   }, {
-    key: "changePortStatus",
-    value: function changePortStatus(port_id) {
-      var _this16 = this;
+    key: "changeHospitalStatus",
+    value: function changeHospitalStatus(hospital_id) {
+      var _this19 = this;
 
       this.setState({
-        port_id: port_id
+        hospital_id: hospital_id
       });
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/port/change_status/" + port_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/hospital/change_status/" + hospital_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
@@ -1071,7 +1223,31 @@ var Ports = /*#__PURE__*/function (_Component) {
         console.log(json.data);
 
         if (json.data.success) {
-          _this16.setState({}, _this16.componentDidMount);
+          _this19.setState({}, _this19.componentDidMount);
+        } else {}
+      })["catch"](function (error) {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        console.error("An Error Occuredd! ".concat(error));
+      });
+    }
+  }, {
+    key: "changeDoctorStatus",
+    value: function changeDoctorStatus(doctor_id) {
+      var _this20 = this;
+
+      this.setState({
+        doctor_id: doctor_id
+      });
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/doc/change_status/" + doctor_id + "?token=".concat(this.state.token)).then(function (response) {
+        console.log("ROI Cartoon");
+        console.log(response);
+        return response;
+      }).then(function (json) {
+        console.log(json.data);
+
+        if (json.data.success) {
+          _this20.setState({}, _this20.componentDidMount);
         } else {}
       })["catch"](function (error) {
         // redirect user to previous page if user does not have autorization to the page
@@ -1082,12 +1258,12 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "changeAccountStatus",
     value: function changeAccountStatus(account_id) {
-      var _this17 = this; // this.setState({ 
-      //   port_id: port_id
+      var _this21 = this; // this.setState({ 
+      //   doctor_id: doctor_id
       // });
 
 
-      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/port/change_account_status/" + account_id + "?token=".concat(this.state.token)).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/api/admin/doc/change_account_status/" + account_id + "?token=".concat(this.state.token)).then(function (response) {
         console.log("ROI Cartoon");
         console.log(response);
         return response;
@@ -1095,12 +1271,12 @@ var Ports = /*#__PURE__*/function (_Component) {
         console.log(json.data);
 
         if (json.data.success) {
-          _this17.setState({
+          _this21.setState({
             successMessage: "Updated successfully",
             showSuccess: true
-          }, _this17.componentDidMount());
+          }, _this21.componentDidMount());
         } else {
-          _this17.setState({
+          _this21.setState({
             errorMessage: "Updated failed",
             showError: true
           });
@@ -1114,14 +1290,66 @@ var Ports = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this18 = this;
+      var _this22 = this;
 
-      if (this.state.status_port == "0") {
-        this.state.status_port = "Not activated";
+      if (this.state.gender == "0") {
+        this.state.gender = "Not specified";
       }
 
-      if (this.state.status_port == "1") {
-        this.state.status_port = "Activated";
+      if (this.state.gender == "1") {
+        this.state.gender = "Male";
+      }
+
+      if (this.state.gender == "2") {
+        this.state.gender = "Female";
+      }
+
+      if (this.state.gender == "3") {
+        this.state.gender = "Prefer not to say";
+      }
+
+      if (this.state.gender == "4") {
+        this.state.gender = this.state.gender_others;
+      }
+
+      if (this.state.title == "0") {
+        this.state.title = "Not specified";
+      }
+
+      if (this.state.title == "1") {
+        this.state.title = "Mr";
+      }
+
+      if (this.state.title == "2") {
+        this.state.title = "Mrs";
+      }
+
+      if (this.state.title == "3") {
+        this.state.title = "Ms";
+      }
+
+      if (this.state.title == "4") {
+        this.state.title = "Miss";
+      }
+
+      if (this.state.available_on_appointment == "1") {
+        this.state.available_on_appointment = "Yes";
+      } else {
+        this.state.available_on_appointment = "No";
+      }
+
+      if (this.state.available_on_emergency == "1") {
+        this.state.available_on_emergency = "Yes";
+      } else {
+        this.state.available_on_emergency = "No";
+      }
+
+      if (this.state.status_hospital == "0") {
+        this.state.status_hospital = "Not activated";
+      }
+
+      if (this.state.status_hospital == "1") {
+        this.state.status_hospital = "Activated";
       } // const { product_image} = this.state
 
 
@@ -1130,28 +1358,28 @@ var Ports = /*#__PURE__*/function (_Component) {
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
         xs: "12",
         sm: "3"
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Ports"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Hospitals"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
         xs: "12",
         lg: "12"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
-      }), " List of Ports"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
+      }), " List of Hospitals"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
         responsive: true,
         bordered: true
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
         scope: "col"
-      }, "#"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "USERNAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "NAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "TELEPHONE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "EMAIL"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "COUNTRY"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "District/Province/State"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
+      }, "#"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "USERNAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "NAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "TELEPHONE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "EMAIL"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "COUNTRY OF RESIDENCE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
         style: {
           paddingRight: "55px"
         }
       }, "ACTION"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "STATUS"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, ( // Calculation for the page S/N
       this.state.currentPage = this.state.activePage * 10 - (10 - 1), // ////////////////////////////////////////////////////////////
-      this.state.ports_list.map(function (port) {
-        if (port.status == 1) {
-          _this18.state.port_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+      this.state.hospitals_list.map(function (hospital) {
+        if (hospital.status == 1) {
+          _this22.state.doc_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
             size: "sm",
             onClick: function onClick() {
-              return _this18.changePortStatus(port.id);
+              return _this22.changeHospitalStatus(hospital.id);
             },
             active: true,
             color: "danger",
@@ -1161,10 +1389,10 @@ var Ports = /*#__PURE__*/function (_Component) {
             className: "fa fa-close"
           }));
         } else {
-          _this18.state.port_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          _this22.state.doc_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
             size: "sm",
             onClick: function onClick() {
-              return _this18.changePortStatus(port.id);
+              return _this22.changeHospitalStatus(hospital.id);
             },
             active: true,
             color: "success",
@@ -1173,65 +1401,55 @@ var Ports = /*#__PURE__*/function (_Component) {
           }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
             className: "fa fa-check"
           }));
-        }
+        } // const doctor_id  = hospital.id;
 
-        var port_id = port.id;
-        var name = port.first_name + " " + port.last_name + " " + port.middle_name;
+
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", {
-          key: port.id
+          key: hospital.id
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
           scope: "row"
-        }, _this18.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.zip_code, " ", port.telephone), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.email), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.country), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, port.district_province_state), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        }, _this22.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, hospital.username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, hospital.name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, hospital.zip_code, " ", hospital.telephone), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, hospital.email), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, hospital.country_of_residence), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           size: "sm",
           onClick: function onClick() {
-            return _this18.viewPort(port_id, name);
+            return _this22.viewHospital(hospital.id, name);
           },
           className: "btn-facebook btn-brand icon mr-1 mb-1",
-          title: "View port"
+          title: "View hospital"
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
           className: "fa fa-user"
         })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           size: "sm",
           onClick: function onClick() {
-            return _this18.viewAccount(port_id, name);
+            return _this22.viewDoctors(hospital.id, name);
           },
           className: "btn-vine btn-brand icon mr-1 mb-1",
-          title: "View port's account"
+          title: "View doctors"
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
-          className: "fa fa-money"
-        })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
-          size: "sm",
-          onClick: function onClick() {
-            return _this18.viewPortPatient(port.id);
-          },
-          className: "btn-flickr btn-brand icon mr-1 mb-1",
-          title: "View port's patient"
-        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
-          className: "fa fa-stethoscope"
-        }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this18.state.port_status));
+          className: "fa fa-user-md"
+        }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this22.state.doc_status));
       })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "d-flex justify-content-center"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_js_pagination__WEBPACK_IMPORTED_MODULE_5___default.a, {
-        activePage: this.state.activePage_ports,
-        itemsCountPerPage: this.state.itemsCountPerPage_ports,
-        totalItemsCount: this.state.totalItemsCount_ports,
-        pageRangeDisplayed: this.state.pageRangeDisplayed_ports,
-        onChange: this.handlePageChangePorts,
+        activePage: this.state.activePage_doctors,
+        itemsCountPerPage: this.state.itemsCountPerPage_doctors,
+        totalItemsCount: this.state.totalItemsCount_doctors,
+        pageRangeDisplayed: this.state.pageRangeDisplayed_doctors,
+        onChange: this.handlePageChangeDoctors,
         itemClass: "page-item",
         linkClass: "page-link"
       })))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
-        isOpen: this.state.portView,
+        isOpen: this.state.hospitalView,
         className: 'modal-primary ' + this.props.className,
         style: {
           maxWidth: "1000px"
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.togglePortView("close", "close");
+          return _this22.toggleHospitalView("close", "close");
         }
-      }, "View Port"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+      }, "View Hospital"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
-      }), this.state.patient_name, " Port's Data"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+      }), this.state.patient_name, " Hospital's Data"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
         xs: "12",
         sm: "12"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
@@ -1251,19 +1469,189 @@ var Ports = /*#__PURE__*/function (_Component) {
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Username"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.username)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Email"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.email)))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
         responsive: true,
         striped: true
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Zip code"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.zip_code)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Telephone"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.telephone)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Country"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.country)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "District/Province/State"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.district_province_state)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Address"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.address)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Certificate"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Zip code"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.zip_code)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Telephone"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.telephone)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Country"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.country)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "District/Province/State"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.district_province_state)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Country of residence"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.country_of_residence)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Address"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.address)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Medical certificate"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
         target: "_blank",
-        href: this.state.certificate
+        href: this.state.medical_certificate
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         size: "sm",
         active: true,
         color: "success",
         title: "View certificate",
         "aria-pressed": "true"
-      }, "View certificate")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Consultation fee"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.consultation_fee)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account number"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_number)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account number"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.status_hospital)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Status"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.status_port)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Registration Date"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.created_at))))))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+      }, "View certificate")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Medical license"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        target: "_blank",
+        href: this.state.medical_license
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        size: "sm",
+        active: true,
+        color: "success",
+        title: "View license",
+        "aria-pressed": "true"
+      }, "View license")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account number"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_number)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account number"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.status_hospital)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Registration Date"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.created_at))))))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.togglePortView("close", "close");
+          return _this22.toggleHospitalView("close", "close");
+        }
+      }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
+        isOpen: this.state.viewDoctors,
+        className: 'modal-primary ' + this.props.className,
+        style: {
+          maxWidth: "1200px"
+        }
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
+        toggle: function toggle() {
+          return _this22.toggleViewDoctors("close", "close");
+        }
+      }, "View Doctors"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        className: "fa fa-align-justify"
+      }), this.state.patient_name, " Doctors"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+        xs: "12",
+        lg: "12"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        className: "fa fa-align-justify"
+      }), " List of Hospitals"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
+        responsive: true,
+        bordered: true
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
+        scope: "col"
+      }, "#"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "USERNAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "FIRST NAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "LAST NAME"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "TELEPHONE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "EMAIL"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "COUNTRY OF RESIDENCE"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "AREA OF SPECIALIZATION"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
+        style: {
+          paddingRight: "55px"
+        }
+      }, "ACTION"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "STATUS"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, ( // Calculation for the page S/N
+      this.state.currentPage = this.state.activePage * 10 - (10 - 1), // ////////////////////////////////////////////////////////////
+      this.state.doctors_list.map(function (doctor) {
+        if (doctor.status == 1) {
+          _this22.state.doc_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+            size: "sm",
+            onClick: function onClick() {
+              return _this22.changeDoctorStatus(doctor.id);
+            },
+            active: true,
+            color: "danger",
+            title: "deactivate account",
+            "aria-pressed": "true"
+          }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+            className: "fa fa-close"
+          }));
+        } else {
+          _this22.state.doc_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+            size: "sm",
+            onClick: function onClick() {
+              return _this22.changeDoctorStatus(doctor.id);
+            },
+            active: true,
+            color: "success",
+            title: "activate account",
+            "aria-pressed": "true"
+          }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+            className: "fa fa-check"
+          }));
+        }
+
+        var doctor_id = doctor.id;
+        var name = doctor.first_name + " " + doctor.last_name + " " + doctor.middle_name;
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", {
+          key: doctor.id
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
+          scope: "row"
+        }, _this22.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.first_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.last_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.zip_code, " ", doctor.telephone), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.email), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.country_of_residence), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, doctor.area_of_specialization), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          size: "sm",
+          onClick: function onClick() {
+            return _this22.viewDoctor(doctor_id, name);
+          },
+          className: "btn-facebook btn-brand icon mr-1 mb-1",
+          title: "View doctor"
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          className: "fa fa-user"
+        })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          size: "sm",
+          onClick: function onClick() {
+            return _this22.viewAccount(doctor_id, name);
+          },
+          className: "btn-vine btn-brand icon mr-1 mb-1",
+          title: "View doctor's account"
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          className: "fa fa-money"
+        })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          size: "sm",
+          onClick: function onClick() {
+            return _this22.viewDoctorPatient(doctor.id);
+          },
+          className: "btn-flickr btn-brand icon mr-1 mb-1",
+          title: "View doctor's patient"
+        }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          className: "fa fa-stethoscope"
+        }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this22.state.doc_status));
+      })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "d-flex justify-content-center"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_js_pagination__WEBPACK_IMPORTED_MODULE_5___default.a, {
+        activePage: this.state.activePage_doctors,
+        itemsCountPerPage: this.state.itemsCountPerPage_doctors,
+        totalItemsCount: this.state.totalItemsCount_doctors,
+        pageRangeDisplayed: this.state.pageRangeDisplayed_doctors,
+        onChange: this.handlePageChangeDoctors,
+        itemClass: "page-item",
+        linkClass: "page-link"
+      }))))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        color: "secondary",
+        onClick: function onClick() {
+          return _this22.toggleViewDoctors("close", "close");
+        }
+      }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
+        isOpen: this.state.doctorView,
+        className: 'modal-primary ' + this.props.className,
+        style: {
+          maxWidth: "1000px"
+        }
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
+        toggle: function toggle() {
+          return _this22.toggleDoctorView("close", "close");
+        }
+      }, "View Doctor"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        className: "fa fa-align-justify"
+      }), this.state.patient_name, " Doctor's Data"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+        xs: "12",
+        sm: "12"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+        xs: "3",
+        lg: "3"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
+        // className="rounded-circle"
+        src: this.state.profile_picture,
+        alt: this.state.name,
+        width: "150"
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Col"], {
+        xs: "9",
+        lg: "9"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
+        responsive: true,
+        striped: true
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Username"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.username)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "First name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.first_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Last name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.last_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Middle name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.middle_name)))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
+        responsive: true,
+        striped: true
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tbody", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Gender"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.gender)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Area of specialization"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.area_of_specialization)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Email"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.email)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Zip code"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.zip_code)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Telephone"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.telephone)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Date of birth"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.dob)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Nationality"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.nationality)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "District/Province/State"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.district_province_state)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Country of residence"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.country_of_residence)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Available on appointment"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.available_on_appointment)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Available on emergency"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.available_on_emergency)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Available by time"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.available_by_time)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Medical certificate"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        target: "_blank",
+        href: this.state.medical_certificate
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        size: "sm",
+        active: true,
+        color: "success",
+        title: "View certificate",
+        "aria-pressed": "true"
+      }, "View certificate")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Medical license"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+        target: "_blank",
+        href: this.state.medical_license
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        size: "sm",
+        active: true,
+        color: "success",
+        title: "View license",
+        "aria-pressed": "true"
+      }, "View license")))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Hospital"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.hospital_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Consultation fee"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.consultation_fee)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account name"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_name)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Bank account number"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.bank_account_number)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Status"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.status_hospital)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", null, "Registration Date"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, this.state.created_at))))))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        color: "secondary",
+        onClick: function onClick() {
+          return _this22.toggleDoctorView("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
         isOpen: this.state.accountView,
@@ -1273,11 +1661,11 @@ var Ports = /*#__PURE__*/function (_Component) {
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.toggleAccountView("close", "close");
+          return _this22.toggleAccountView("close", "close");
         }
       }, "View Account"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
-      }), this.state.patient_name, " Port's Account"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
+      }), this.state.patient_name, " Doctor's Account"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Row"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Table"], {
         responsive: true,
         bordered: true
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("tr", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
@@ -1286,13 +1674,13 @@ var Ports = /*#__PURE__*/function (_Component) {
       this.state.currentPage = this.state.activePage_account * 10 - (10 - 1), // ////////////////////////////////////////////////////////////
       this.state.account_list.map(function (account) {
         if (account.status == 1) {
-          _this18.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
+          _this22.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
             color: "danger"
           }, "Consultation Open");
-          _this18.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          _this22.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
             size: "sm",
             onClick: function onClick() {
-              return _this18.changeAccountStatus(account.id);
+              return _this22.changeAccountStatus(account.id);
             },
             active: true,
             color: "success",
@@ -1302,13 +1690,13 @@ var Ports = /*#__PURE__*/function (_Component) {
             className: "fa fa-check"
           }));
         } else if (account.status == 2) {
-          _this18.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
+          _this22.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
             color: "primary"
           }, "Consultation Closed");
-          _this18.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          _this22.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
             size: "sm",
             onClick: function onClick() {
-              return _this18.changeAccountStatus(account.id);
+              return _this22.changeAccountStatus(account.id);
             },
             active: true,
             color: "success",
@@ -1318,13 +1706,13 @@ var Ports = /*#__PURE__*/function (_Component) {
             className: "fa fa-check"
           }));
         } else if (account.status == 3) {
-          _this18.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
+          _this22.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
             color: "success"
           }, "Paid");
-          _this18.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+          _this22.state.payment_status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
             size: "sm",
             onClick: function onClick() {
-              return _this18.changeAccountStatus(account.id);
+              return _this22.changeAccountStatus(account.id);
             },
             active: true,
             color: "danger",
@@ -1346,7 +1734,7 @@ var Ports = /*#__PURE__*/function (_Component) {
           key: account.id
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
           scope: "row"
-        }, _this18.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.patient_username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_port_fee), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_amount_currency), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_orderID), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.created_at), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this18.state.status), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this18.state.payment_status));
+        }, _this22.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.patient_username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_doctor_fee), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_amount_currency), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.billing_orderID), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, account.created_at), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this22.state.status), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this22.state.payment_status));
       })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "d-flex justify-content-center"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_js_pagination__WEBPACK_IMPORTED_MODULE_5___default.a, {
@@ -1360,17 +1748,17 @@ var Ports = /*#__PURE__*/function (_Component) {
       })))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.toggleAccountView("close", "close");
+          return _this22.toggleAccountView("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
-        isOpen: this.state.primaryPortPatient,
+        isOpen: this.state.primaryDoctorPatient,
         className: 'modal-primary ' + this.props.className,
         style: {
           maxWidth: "1200px"
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.toggleViewPortPatient("close", "close");
+          return _this22.toggleViewDoctorPatient("close", "close");
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
@@ -1405,11 +1793,11 @@ var Ports = /*#__PURE__*/function (_Component) {
       this.state.currentPage = this.state.activePage * 10 - (10 - 1), // ////////////////////////////////////////////////////////////
       this.state.applications_list.map(function (application) {
         if (application.status == 1) {
-          _this18.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
+          _this22.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
             color: "success"
           }, "Open");
         } else {
-          _this18.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
+          _this22.state.status = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Badge"], {
             color: "danger"
           }, "Closed");
         }
@@ -1420,10 +1808,10 @@ var Ports = /*#__PURE__*/function (_Component) {
           key: application.id
         }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("th", {
           scope: "row"
-        }, _this18.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_first_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_last_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_middle_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.date), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.time), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this18.state.status), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
+        }, _this22.state.currentPage++), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_first_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_last_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.patient_middle_name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.date), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, application.time), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, _this22.state.status), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           size: "sm",
           onClick: function onClick() {
-            return _this18.getPateintMedicalRec(patient_id, name);
+            return _this22.getPateintMedicalRec(patient_id, name);
           },
           className: "btn-facebook btn-brand icon mr-1 mb-1",
           style: {
@@ -1435,7 +1823,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
           size: "sm",
           onClick: function onClick() {
-            return _this18.viewAppointment(patient_id, name);
+            return _this22.viewAppointment(patient_id, name);
           },
           className: "btn-facebook btn-brand icon mr-1 mb-1",
           title: "View appointment"
@@ -1455,7 +1843,7 @@ var Ports = /*#__PURE__*/function (_Component) {
       }))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.toggleViewPortPatient("close", "close");
+          return _this22.toggleViewDoctorPatient("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
         isOpen: this.state.primary,
@@ -1465,7 +1853,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.togglePrimary("close", "close");
+          return _this22.togglePrimary("close", "close");
         }
       }, "Messages"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
@@ -1507,12 +1895,12 @@ var Ports = /*#__PURE__*/function (_Component) {
         } // onChange={this.onChangeProfilePicture}
         ,
         onChange: function onChange(e) {
-          _this18.sendFile(e);
+          _this22.sendFile(e);
         }
       })))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.togglePrimary("close", "close");
+          return _this22.togglePrimary("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
         isOpen: this.state.patientRec,
@@ -1522,7 +1910,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.togglePatientRec("close", "close");
+          return _this22.togglePatientRec("close", "close");
         }
       }, "Medical Records"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
@@ -1540,10 +1928,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "mcu");
+            return _this22.toggleMedRecTab(meds.id + "mcu");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "mcu",
+          active: _this22.state.activeTab === meds.id + "mcu",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1587,10 +1975,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "all");
+            return _this22.toggleMedRecTab(meds.id + "all");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "all",
+          active: _this22.state.activeTab === meds.id + "all",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1634,10 +2022,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "blo");
+            return _this22.toggleMedRecTab(meds.id + "blo");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "blo",
+          active: _this22.state.activeTab === meds.id + "blo",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1697,10 +2085,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "fmh");
+            return _this22.toggleMedRecTab(meds.id + "fmh");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "fmh",
+          active: _this22.state.activeTab === meds.id + "fmh",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1744,10 +2132,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "hyp");
+            return _this22.toggleMedRecTab(meds.id + "hyp");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "hyp",
+          active: _this22.state.activeTab === meds.id + "hyp",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1795,10 +2183,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "dia");
+            return _this22.toggleMedRecTab(meds.id + "dia");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "dia",
+          active: _this22.state.activeTab === meds.id + "dia",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1846,10 +2234,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "und");
+            return _this22.toggleMedRecTab(meds.id + "und");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "und",
+          active: _this22.state.activeTab === meds.id + "und",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1893,10 +2281,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "pre");
+            return _this22.toggleMedRecTab(meds.id + "pre");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "pre",
+          active: _this22.state.activeTab === meds.id + "pre",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1940,10 +2328,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "lab");
+            return _this22.toggleMedRecTab(meds.id + "lab");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "lab",
+          active: _this22.state.activeTab === meds.id + "lab",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -1987,10 +2375,10 @@ var Ports = /*#__PURE__*/function (_Component) {
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ListGroupItem"], {
           key: meds.id,
           onClick: function onClick() {
-            return _this18.toggleMedRecTab(meds.id + "not");
+            return _this22.toggleMedRecTab(meds.id + "not");
           },
           action: true,
-          active: _this18.state.activeTab === meds.id + "not",
+          active: _this22.state.activeTab === meds.id + "not",
           style: {
             padding: "0.3rem 1.0rem"
           }
@@ -2034,7 +2422,7 @@ var Ports = /*#__PURE__*/function (_Component) {
       }, "Update Medical Records")))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.togglePatientRec("close", "close");
+          return _this22.togglePatientRec("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Modal"], {
         isOpen: this.state.primaryViewAppointment,
@@ -2044,7 +2432,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         }
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalHeader"], {
         toggle: function toggle() {
-          return _this18.toggleViewAppointment("close", "close");
+          return _this22.toggleViewAppointment("close", "close");
         }
       }, "View Appointment"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalBody"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
         className: "fa fa-align-justify"
@@ -2060,7 +2448,7 @@ var Ports = /*#__PURE__*/function (_Component) {
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Card"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["CardHeader"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("strong", null, "Patient Appointment"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         size: "sm",
         onClick: function onClick() {
-          return _this18.togglePrimary();
+          return _this22.togglePrimary();
         },
         className: "btn-facebook btn-brand icon mr-1 mb-1",
         title: "Chat with patient",
@@ -2104,12 +2492,12 @@ var Ports = /*#__PURE__*/function (_Component) {
           "float": "right"
         },
         onClick: function onClick() {
-          return _this18.endAppointment();
+          return _this22.endAppointment();
         }
       }, "End Appointment"))))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["ModalFooter"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(reactstrap__WEBPACK_IMPORTED_MODULE_8__["Button"], {
         color: "secondary",
         onClick: function onClick() {
-          return _this18.toggleViewAppointment("close", "close");
+          return _this22.toggleViewAppointment("close", "close");
         }
       }, "Cancel"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         id: "sweet_alert1",
@@ -2117,7 +2505,7 @@ var Ports = /*#__PURE__*/function (_Component) {
           display: "none"
         },
         onClick: function onClick() {
-          return _this18.setState({
+          return _this22.setState({
             showSuccess: true
           });
         }
@@ -2129,7 +2517,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         animation: "true",
         text: this.state.successMessage,
         onConfirm: function onConfirm() {
-          return _this18.setState({
+          return _this22.setState({
             showSuccess: false
           });
         }
@@ -2139,7 +2527,7 @@ var Ports = /*#__PURE__*/function (_Component) {
           display: "none"
         },
         onClick: function onClick() {
-          return _this18.setState({
+          return _this22.setState({
             showError: true
           });
         }
@@ -2151,7 +2539,7 @@ var Ports = /*#__PURE__*/function (_Component) {
         animation: "true",
         text: this.state.errorMessage,
         onConfirm: function onConfirm() {
-          return _this18.setState({
+          return _this22.setState({
             showError: false
           });
         }
@@ -2159,10 +2547,10 @@ var Ports = /*#__PURE__*/function (_Component) {
     }
   }]);
 
-  return Ports;
+  return Hospitals;
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
-/* harmony default export */ __webpack_exports__["default"] = (Ports);
+/* harmony default export */ __webpack_exports__["default"] = (Hospitals);
 
 /***/ })
 

@@ -7,6 +7,7 @@ use JWTAuthException;
 use Mail;
 
 use App\Doctors;
+use App\Associates;
 use App\Mail\WelcomeMail;
 
 use Illuminate\Support\Facades\Validator;
@@ -120,6 +121,7 @@ class HospitalController extends Controller
             'username'  => 'required|string|unique:hospitals|max:255',
             'email'     => 'required|email|unique:hospitals|max:255', 
             'password'  => 'required|string|min:8|max:255', 
+            'associate_username' => 'nullable|string|max:255',
         ]);
         
         // Return validation error
@@ -134,8 +136,16 @@ class HospitalController extends Controller
         $username   = Sanitizes::my_sanitize_string( $request->username);
         $email      = Sanitizes::my_sanitize_email( $request->email);
         $password   = Sanitizes::my_sanitize_string( $request->password);
+        $associate_username = Sanitizes::my_sanitize_string( $request->associate_username);
 
         $ev_code = md5(sprintf("%05x%05x",mt_rand(0,0xffff),mt_rand(0,0xffff)));
+
+        $associate      = Associates::where('username', '=', $associate_username)->first();
+        if($associate){
+            $associate_id   = $associate->id;
+        }else{
+            $associate_id   = null;
+        }
 
         $payload = [
             'password'  =>\Hash::make($password),
@@ -143,7 +153,8 @@ class HospitalController extends Controller
             'email'     =>$email,
             'name'      =>$name,
             'auth_token'=> '',
-            'ev_code'   =>$ev_code
+            'ev_code'   =>$ev_code,
+            'associate' => $associate_id,
         ];
                   
         $user = new \App\Hospitals($payload);
@@ -177,115 +188,89 @@ class HospitalController extends Controller
             return response()->json($response, 201);
     }
 
-    // public function addDoctor(Request $request, $hospital_id)
-    // {   
-    //     // return $request;
-    //     // Validate
-    //     $validator = Validator::make($request->all(), [ 
-    //         'area_of_specialization'    => 'required|string|max:65535', 
-    //         'contact_address'           => 'required|string|max:65535', 
-    //         'country_of_residence'      => 'required|string|max:255', 
-    //         'district_province_state'   => 'required|string|max:255', 
-    //         'dob'                       => 'required|string|max:255', 
-    //         'email'                     => 'required|email|unique:doctors|max:255', 
-    //         'first_name'                => 'required|string|max:255', 
-    //         'gender'                    => 'required|string|max:255', 
-    //         'last_name'                 => 'required|string|max:255', 
-    //         'middle_name'               => 'required|string|max:255', 
-    //         'password'                  => 'required|string|min:8|max:255', 
-    //         'telephone'                 => 'required|string|max:255', 
-    //         'username'                  => 'required|string|unique:doctors|max:255',
-    //         'zip_code'                  => 'required|string|max:255', 
-    //         'consultation_fee'          => 'required|string|max:255', 
-    //     ]);
+    public function associateAddHospital(Request $request, $associate_id)
+    {   
+        // return $request;
+        $user = Encrypt::cryptoJsAesDecrypt('where do you go when you by yourself', $request->user);
+        // convert array back to laravel request object
+        $request = new \Illuminate\Http\Request();
+        $request->replace($user);
+        // Validate
+        $validator = Validator::make($request->all(), [ 
+            'name'      => 'required|string|max:250',  
+            'username'  => 'required|string|unique:hospitals|max:255',
+            'email'     => 'required|email|unique:hospitals|max:255', 
+            'zip_code'  => 'required|string|max:255', 
+            'telephone' => 'required|string|max:255', 
+            'password'  => 'required|string|min:8|max:255', 
+            'country'   => 'required|string|max:255', 
+            'district_province_state'   => 'required|string|max:255', 
+            'address'   => 'required|string|max:65535',
+        ]);
         
-    //     // Return validation error
-    //     if ($validator->fails()) { 
-    //         $validationError = $validator->errors(); 
-    //         $response = ['success'=>false, 'data'=>$validationError];
-    //         return response()->json($response, 201);
-    //     }
+        // Return validation error
+        if ($validator->fails()) { 
+            $validationError = $validator->errors(); 
+            $response = ['success'=>false, 'data'=>$validationError];
+            return response()->json($response, 201);
+        }
 
-    //     // Sanitize inputs
-    //     $area_of_specialization     = Sanitizes::my_sanitize_string( $request->area_of_specialization);
-    //     $available_by_time          = Sanitizes::my_sanitize_string( $request->available_by_time);
-    //     $available_on_appointment   = Sanitizes::my_sanitize_string( $request->available_on_appointment);
-    //     $available_on_emergency     = Sanitizes::my_sanitize_string( $request->available_on_emergency);
-    //     $contact_address            = Sanitizes::my_sanitize_string( $request->contact_address);
-    //     $country_of_residence       = Sanitizes::my_sanitize_string( $request->country_of_residence);
-    //     $district_province_state    = Sanitizes::my_sanitize_string( $request->district_province_state);
-    //     $dob                        = Sanitizes::my_sanitize_string( $request->dob);
-    //     $email                      = Sanitizes::my_sanitize_email( $request->email);
-    //     $first_name                 = Sanitizes::my_sanitize_string( $request->first_name);
-    //     $gender                     = Sanitizes::my_sanitize_string( $request->gender);
-    //     $gender_others              = Sanitizes::my_sanitize_string( $request->gender_others);
-    //     $last_name                  = Sanitizes::my_sanitize_string( $request->last_name);
-    //     $middle_name                = Sanitizes::my_sanitize_string( $request->middle_name);
-    //     $nationality                = Sanitizes::my_sanitize_string( $request->nationality);
-    //     $password                   = Sanitizes::my_sanitize_string( $request->password);
-    //     $telephone                  = Sanitizes::my_sanitize_number( $request->telephone);
-    //     $username                   = Sanitizes::my_sanitize_string( $request->username);
-    //     $zip_code                   = Sanitizes::my_sanitize_string( $request->zip_code);
-    //     $consultation_fee           = Sanitizes::my_sanitize_number( $request->consultation_fee);
-        
-    //     $ev_code = md5(sprintf("%05x%05x",mt_rand(0,0xffff),mt_rand(0,0xffff)));
+        // Sanitize inputs
+        $name       = Sanitizes::my_sanitize_string( $request->name);
+        $username   = Sanitizes::my_sanitize_string( $request->username);
+        $email      = Sanitizes::my_sanitize_email( $request->email);
+        $zip_code   = Sanitizes::my_sanitize_string( $request->zip_code);
+        $telephone  = Sanitizes::my_sanitize_string( $request->telephone);
+        $country    = Sanitizes::my_sanitize_string( $request->country);
+        $district_province_state   = Sanitizes::my_sanitize_string( $request->district_province_state);
+        $password   = Sanitizes::my_sanitize_string( $request->password);
 
-    //     $payload = [
-    //         'password'  =>\Hash::make($password),
-    //         'auth_token'=> '',
-    //         'ev_code'   =>$ev_code,
+        $ev_code = md5(sprintf("%05x%05x",mt_rand(0,0xffff),mt_rand(0,0xffff)));
 
-    //         'area_of_specialization'    => $area_of_specialization, 
-    //         'available_by_time'         => $available_by_time, 
-    //         'available_on_appointment'  => $available_on_appointment, 
-    //         'available_on_emergency'    => $available_on_emergency, 
-    //         'contact_address'           => $contact_address, 
-    //         'country_of_residence'      => $country_of_residence, 
-    //         'district_province_state'   => $district_province_state, 
-    //         'dob'                       => $dob, 
-    //         'email'                     => $email, 
-    //         'first_name'                => $first_name, 
-    //         'gender'                    => $gender, 
-    //         'gender_others'             => $gender_others, 
-    //         'last_name'                 => $last_name, 
-    //         'middle_name'               => $middle_name, 
-    //         'nationality'               => $nationality, 
-    //         'telephone'                 => $telephone, 
-    //         'username'                  => $username,
-    //         'zip_code'                  => $zip_code, 
+        $payload = [
+            'password'  =>\Hash::make($password),
+            'auth_token'=> '',
+            'ev_code'   =>$ev_code,
 
-    //         'hospital'                  => $hospital_id,
-    //         'consultation_fee'          => $consultation_fee,
-    //     ];
+            'name'      =>$name,
+            'username'  =>$username,
+            'email'     =>$email,
+            'zip_code'  =>$zip_code,
+            'telephone' =>$telephone,
+            'country'   =>$country,
+            'associate' => $associate_id,
+            'district_province_state' =>$district_province_state,
+        ];
                   
-    //     $user = new \App\Doctors($payload);
-    //     if ($user->save())
-    //     {
+        $user = new \App\Hospitals($payload);
+        if ($user->save())
+        {
             
-    //         $token = self::getToken($request->email, $request->password); // generate user token
+            $token = self::getToken($email, $password); // generate user token
             
-    //         if (!is_string($token))  return response()->json(['success'=>false,'data'=>'Token generation failed'], 201);
+            if (!is_string($token))  return response()->json(['success'=>false,'data'=>'Token generation failed'], 201);
             
-    //         $user = \App\Doctors::where('email', $request->email)->get()->first();
+            $user = \App\Hospitals::where('email', $email)->get()->first();
             
-    //         $user->auth_token = $token; // update user token
+            $user->auth_token = $token; // update user token
             
-    //         $user->save();
-    //         // ///////// ADD ROLE ///////////////////////
-    //         $user->attachRole('user');
-    //         // ////////// SEND MAIL //////////////////////////
-    //         $emailDetails = [
-    //             'title' => 'Welcome to CamMedics',
-    //             'first_name' => $user->first_name,
-    //             'url' => 'https://dashboard.cammedics.com/#/login_doctor'
-    //         ];
+            $user->save();
+            // ///////// ADD ROLE ///////////////////////
+            $user->attachRole('user');
+            // ////////// SEND MAIL //////////////////////////
+            $emailDetails = [
+                'title' => 'Welcome to CamMedics',
+                'first_name' => $user->name,
+                'url' => 'https://dashboard.cammedics.com/#/login_hospital'
+            ];
     
-    //         Mail::to($request->email)->send(new WelcomeMail($emailDetails));
+            Mail::to($email)->send(new WelcomeMail($emailDetails));
 
-    //         $response = ['success'=>true, 'data'=>['username'=>$user->username,'first_name'=>$user->first_name,'last_name'=>$user->last_name,'id'=>$user->id,'email'=>$request->email,'auth_token'=>$token]];        
-    //     }
-    //     else
-    //         $response = ['success'=>false, 'data'=>'Couldnt register user'];
-    //         return response()->json($response, 201);
-    // }
+            $response = ['success'=>true, 'data'=>['username'=>$user->username,'name'=>$user->name,'id'=>$user->id,'email'=>$email,'auth_token'=>$token]];        
+        }
+        else
+            $response = ['success'=>false, 'data'=>'Couldnt register user'];
+            return response()->json($response, 201);
+    }
+    
 }

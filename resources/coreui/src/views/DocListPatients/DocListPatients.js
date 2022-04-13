@@ -193,6 +193,7 @@ class DocListPatients extends Component {
       errorMessage: "Failed",
       // //////////////////////////////////
       chat_btn_status: false,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -221,39 +222,70 @@ class DocListPatients extends Component {
 
   // fetch data from db
   componentDidMount()
-  {
-    axios.get(`/api/doc/patients_list/`+this.state.id+`?token=${this.state.token}`)
+  { 
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "doctor"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/doc/patients_list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          // console.log("applications_list");
+          // console.log(typeof(json.data.data.data));
+          // console.log(json.data.data.data);
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else {
+          
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/doc/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      console.log("ROI Cartoon");
-      console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        console.log("applications_list");
-        console.log(typeof(json.data.data.data));
-        console.log(json.data.data.data);
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
       } else {
         
       }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
       
     });
   }
 
   // Pagination handler
   handlePageChange(pageNumber) {
-    console.log(`active page is ${pageNumber}`);
+    // console.log(`active page is ${pageNumber}`);
     // this.setState({activePage: pageNumber});
     axios.get(`/api/doc/patients_list/`+this.state.id+`?token=${this.state.token}&page=`+pageNumber)
     .then(response => {
@@ -325,14 +357,14 @@ class DocListPatients extends Component {
     // alert("Paulo");
     axios.get(`/api/doc/patient/chat/message/get/`+this.state.patient_id+'/'+this.state.id+`?token=${this.state.token}`)
       .then(response => {
-        console.log("ROI Cartoon");
-        console.log(response);
+        // console.log("ROI Cartoon");
+        // console.log(response);
         return response;
       })
       .then(json => {
-        console.log("json.data.messages.message");
-        console.log(typeof(json.data.messages.message));
-        console.log(json.data.messages.message);
+        // console.log("json.data.messages.message");
+        // console.log(typeof(json.data.messages.message));
+        // console.log(json.data.messages.message);
         if (json.data.success) {
         //   console.log("applications_list");
         //   console.log(json.data.data.data);
@@ -345,8 +377,8 @@ class DocListPatients extends Component {
       })
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
-        hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
   }
@@ -395,8 +427,8 @@ class DocListPatients extends Component {
         }
         axios.post(`/api/doc/patient/chat/message/send/`+this.state.patient_id+'/'+this.state.id+`?token=${this.state.token}`, send_message)
         .then(response => {
-          console.log("ROI Cartoon");
-          console.log(response);
+          // console.log("ROI Cartoon");
+          // console.log(response);
           return response;
         })
         .then(json => {
@@ -409,7 +441,7 @@ class DocListPatients extends Component {
         .catch(error => {
           // redirect user to previous page if user does not have autorization to the page
           // hashHistory.push('/premontessori');
-          console.error(`An Error Occuredd! ${error}`);
+          // console.error(`An Error Occuredd! ${error}`);
           
         });
     }
@@ -464,7 +496,7 @@ class DocListPatients extends Component {
   togglePatientRec = (patient_id, name) => {
     // togglePatientRec(id, name) {
     
-    console.log(patient_id);
+    // console.log(patient_id);
     this.setState({
       patientRec: !this.state.patientRec,
       patient_id: patient_id,
@@ -477,15 +509,15 @@ class DocListPatients extends Component {
     // get patient medical records to display in modal
     axios.get(`/api/doc/patientMedRec/get/`+patient_id+'/'+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      console.log("It came back");
-      console.log(response);
+      // console.log("It came back");
+      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        console.log("med_currently_using");
-        console.log(json.data.med_currently_using)
-        console.log(json.status)
+        // console.log("med_currently_using");
+        // console.log(json.data.med_currently_using)
+        // console.log(json.status)
         this.setState({ 
           // //////////////////////////////////////////////////////
           medications_currently_using: json.data.med_currently_using,
@@ -514,7 +546,7 @@ class DocListPatients extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -528,13 +560,13 @@ class DocListPatients extends Component {
     // get patient medical records to display in modal
     axios.get(`/api/doc/appointment/get/`+patient_id+'/'+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      console.log("It came back");
-      console.log(response);
+      // console.log("It came back");
+      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        console.log(json.data)
+        // console.log(json.data)
         this.setState({ 
           // //////////////////////////////////////////////////////
           appointment_id: json.data.data.id,
@@ -549,14 +581,14 @@ class DocListPatients extends Component {
 
           appointment_status: json.data.data.status,
         }, this.toggleViewAppointment());
-        if(this.state.appointment_status == 1){
+        if(this.state.appointment_status == 2){
           this.setState({ 
             appointment_status: 'Open',
             appointment_status_color: 'success',
             chat_btn_status: false,
           })
         }
-        if(this.state.appointment_status == 2){
+        if(this.state.appointment_status == 3){
           this.setState({ 
             appointment_status: 'Close',
             appointment_status_color: 'danger',
@@ -574,7 +606,7 @@ class DocListPatients extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -591,13 +623,13 @@ class DocListPatients extends Component {
     // get patient medical records to display in modal
     axios.get(`/api/doc/appointment/end/`+this.state.patient_id+'/'+this.state.id+'/'+this.state.appointment_id+`?token=${this.state.token}`)
     .then(response => {
-      console.log("It came back");
-      console.log(response);
+      // console.log("It came back");
+      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        console.log(json.data.data)
+        // console.log(json.data.data)
         this.setState({ 
           successMessage: json.data.data,
           showSuccess: true
@@ -643,8 +675,8 @@ class DocListPatients extends Component {
       //     },      
       // })  
       .then(response => {
-        console.log("ROI Cartoon");
-        console.log(response);
+        // console.log("ROI Cartoon");
+        // console.log(response);
         return response;
       })
       .then(json => {
@@ -663,8 +695,7 @@ class DocListPatients extends Component {
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
         // hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
-        
+        // console.error(`An Error Occuredd! ${error}`);
       });
   }
 
@@ -694,8 +725,8 @@ class DocListPatients extends Component {
               <Card>
                 <CardHeader>
                   <i className="fa fa-align-justify"></i> List of Patients 
-                  <ExternalLink href="https://live.cammedics.com/">
-                    <Button color="primary" style={{float: "right"}}>Start a Video Chat</Button>
+                  <ExternalLink href="/#/live_chat">
+                    <Button size="sm" color="primary" style={{float: "right"}}>Start a Video Chat</Button>
                   </ExternalLink>
 
                 </CardHeader>
@@ -720,9 +751,9 @@ class DocListPatients extends Component {
                         this.state.currentPage = ((this.state.activePage * 10) - (10 - 1)),
                         // ////////////////////////////////////////////////////////////
                         this.state.applications_list.map(application=>{
-                          if(application.status == 1){
+                          if(application.status == 2){
                             this.state.status = <Badge color="success">Open</Badge>;
-                          }else{
+                          }else if(application.status == 3){
                             this.state.status = <Badge color="danger">Closed</Badge>;
                           }
                           const patient_id  = application.patient_id;

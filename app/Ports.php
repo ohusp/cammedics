@@ -22,7 +22,7 @@ class Ports extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'username', 'email', 'zip_code', 'telephone', 'password', 'auth_token', 'ev_code', 'country', 'district_province_state', 'address', 'bank_name', 'bank_account_name', 'bank_account_number', 'logo', 'certificate',  'status'
+        'name', 'username', 'email', 'zip_code', 'telephone', 'password', 'auth_token', 'ev_code', 'country', 'district_province_state', 'address', 'bank_name', 'bank_account_name', 'bank_account_number', 'logo', 'associate','certificate',  'status'
     ];
 
     /**

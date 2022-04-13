@@ -3,7 +3,7 @@
 Hello {{ $emailDetails['first_name'] }} <br>
 Welcome to CamMedics.<br><br>
 CamMedics is an innovative portal customized to deliver excellent virtual medical care and cutting edge treatment to patients across the globle.<br><br>
-Click the button below to login with your username and password
+Click the button below to login with your email and password
    
 @component('mail::button', ['url' => $emailDetails['url']])
 Login

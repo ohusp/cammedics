@@ -131,6 +131,7 @@ class LabTests extends Component {
       startDate: new Date(),
       // //////////////////modal
       primary: false,
+      login_as: "",
 
     };
     this.handlePageChange=this.handlePageChange.bind(this);
@@ -139,27 +140,57 @@ class LabTests extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/lab/test/list/`+this.state.id+`?token=${this.state.token}`)
+    this.checkIfProfileCompleted();
+
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "laboratory"){
+      hashHistory.push('/premontessori');
+    }else{
+      axios.get(`/api/lab/test/list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        // console.log("ROI Cartoon");
+        // console.log(response);
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            lab_test_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          });
+        } else alert("Login Failed!");
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        hashHistory.push('/premontessori');
+        console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
+  }
+
+  checkIfProfileCompleted()
+  { 
+    axios.get(`/api/lab/get/`+this.state.id+`?token=${this.state.token}`)
     .then(response => {
-      // console.log("ROI Cartoon");
-      // console.log(response);
       return response;
     })
     .then(json => {
       if (json.data.success) {
-        this.setState({ 
-          lab_test_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        });
-      } else alert("Login Failed!");
+        // console.log(json.data.data)
+        if(json.data.data.telephone == null || json.data.data.telephone == ""){
+          this.setState({ 
+            errorMessage: "Please go to profile page and complete your profile update",
+            showError: true
+          });
+        }
+      } else {
+        
+      }
     })
     .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
-      hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
     });
   }
 

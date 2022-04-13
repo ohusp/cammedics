@@ -179,6 +179,7 @@ class PharmProducts extends Component {
       // ///// Use to know where to add product image link
       last_inserted_id: "",
       // last_edited_id: "",
+      login_as: "",
     };
     this.handlePageChange=this.handlePageChange.bind(this);
   }
@@ -186,28 +187,33 @@ class PharmProducts extends Component {
   // fetch data from db
   componentDidMount()
   {
-    axios.get(`/api/products/list/`+this.state.id+`?token=${this.state.token}`)
-    .then(response => {
-      return response;
-    })
-    .then(json => {
-      if (json.data.success) {
-        this.setState({ 
-          applications_list: json.data.data.data,
-          itemsCountPerPage: json.data.data.per_page,
-          totalItemsCount: json.data.data.total,
-          activePage: json.data.data.current_page
-        }, this.getProductCategories);
-      } else {
-
-      }
-    })
-    .catch(error => {
-      // redirect user to previous page if user does not have autorization to the page
+    this.state.login_as   = localStorage.getItem("login_from");
+    if( this.state.login_as != "pharm"){
       hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
-      
-    });
+    }else{
+      axios.get(`/api/products/list/`+this.state.id+`?token=${this.state.token}`)
+      .then(response => {
+        return response;
+      })
+      .then(json => {
+        if (json.data.success) {
+          this.setState({ 
+            applications_list: json.data.data.data,
+            itemsCountPerPage: json.data.data.per_page,
+            totalItemsCount: json.data.data.total,
+            activePage: json.data.data.current_page
+          }, this.getProductCategories);
+        } else {
+
+        }
+      })
+      .catch(error => {
+        // redirect user to previous page if user does not have autorization to the page
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
+        
+      });
+    }
   }
 
   // Pagination handler
@@ -249,7 +255,7 @@ class PharmProducts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -345,8 +351,8 @@ class PharmProducts extends Component {
       })
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
-        hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
     }
@@ -456,7 +462,7 @@ class PharmProducts extends Component {
     .catch(error => {
       // redirect user to previous page if user does not have autorization to the page
       // hashHistory.push('/premontessori');
-      console.error(`An Error Occuredd! ${error}`);
+      // console.error(`An Error Occuredd! ${error}`);
       
     });
   }
@@ -518,8 +524,8 @@ class PharmProducts extends Component {
       })
       .catch(error => {
         // redirect user to previous page if user does not have autorization to the page
-        hashHistory.push('/premontessori');
-        console.error(`An Error Occuredd! ${error}`);
+        // hashHistory.push('/premontessori');
+        // console.error(`An Error Occuredd! ${error}`);
         
       });
     }

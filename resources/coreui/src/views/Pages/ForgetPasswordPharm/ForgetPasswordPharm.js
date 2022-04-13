@@ -5,6 +5,7 @@ import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGr
 
 import axios from 'axios'
 import $ from "jquery";
+import SweetAlert from 'sweetalert2-react';
 import { AesEncrypt, AesDecrypt } from 'aes';
 // ////////// LOADER /////////////////////////////////
 import { css } from "@emotion/core";
@@ -67,54 +68,27 @@ class ForgetPasswordPharm extends Component {
             }
         )
         .then(response => {
-            // console.log("response-1");
-            // console.log(response);
             return response;
-            // console.log("Mr mendes")
-            // localStorage.setItem('usertoken', response.data.auth_token)
-            // return response.data.token
         })
         .then(json => {
-            // ////////// LOADER //////////////
-              this.setState({
-                showDiv: "none",
-                loading: false,
-              });
-            // ///////////////////////////////
-            if (json.data.success) {
-                alert("Login Successful!");
-                const { id, created_at, auth_token, user_type } = json.data.data;
+          // ////////// LOADER //////////////
+            this.setState({
+              showDiv: "none",
+              loading: false,
+            });
+          // ///////////////////////////////
+          if (json.data.success) {
+            this.setState({ 
+              successMessage: "Please follow the link sent to your email and reset your password",
+              showSuccess: true,
+            });
+          } else {
+            this.setState({
+              errorMessage: "Forget password failed",
+              showError: true
+            });
+          }
 
-                let userData = {
-                  id,
-                  created_at,
-                  auth_token,
-                  user_type,
-                  timestamp: new Date().toString()
-                };
-                let appState = {
-                    isLoggedIn: true,
-                    user: userData
-                };
-                // save app state with user date in local storage
-                localStorage["appState"] = JSON.stringify(appState);
-                // console.log("Response-2");
-                // console.log(localStorage["appState"]);
-                // console.log("Response-3");
-                
-                this.setState({
-                    isLoggedIn: appState.isLoggedIn,
-                    user: appState.user
-                });
-                // localStorage.setItem('usertoken', appState)
-                // console.log("Mr Mendes is here 2");
-                // console.log(`Bearer ${localStorage.usertoken}`)
-                this.props.history.push(`/dashboard`)
-            } else alert("Login Failed!");
-
-            $("#login-form button")
-                .removeAttr("disabled")
-                .html("Login");
         })
         .catch(err => {
             // console.log(err)
@@ -137,12 +111,15 @@ class ForgetPasswordPharm extends Component {
           <Row className="justify-content-center">
             <Col md="8">
               <div className="mb-3 mx-auto text-center">
-                <img
-                  className=""
-                  src={this.state.avatar}
-                  alt={this.state.Cam_Medics}
-                  width="160"
-                />
+                <a href="https://cammedics.com">
+                  <img
+                    className=""
+                    src={this.state.avatar}
+                    alt={this.state.Cam_Medics}
+                    width="160"
+                  />
+                </a>
+                <h5 className="text-center" style={{marginTop: "15px"}}>Pharmacy</h5>
               </div>
               <CardGroup>
                 <Card className="p-4">
@@ -177,7 +154,7 @@ class ForgetPasswordPharm extends Component {
                       <Row>
                         <Col xs="6" className="text-right"></Col>
                         <Col xs="6" className="text-right">
-                          <Link to="/login">
+                          <Link to="/login_pharm">
                             <Button color="link" className="px-0 kiu-color"> Sign In</Button>
                           </Link>
                         </Col>
@@ -224,6 +201,30 @@ class ForgetPasswordPharm extends Component {
             {/* // ///////////////// ////////////// */}
           </Row>
         </Container>
+          {/* ///////////////// Sweet Alerts //////////////////////////////////// */}
+                
+          <button id="sweet_alert1" style={{display: "none"}} onClick={() => this.setState({ showSuccess: true })}>Alert</button>
+          <SweetAlert
+            show={this.state.showSuccess}
+            // title="Demo"
+            type= "success"
+            confirmButtonColor="#2167ac"
+            animation="true"
+            text={this.state.successMessage}
+            onConfirm={() => this.setState({ showSuccess: false })}
+          />
+
+          <button id="sweet_alert2" style={{display: "none"}} onClick={() => this.setState({ showError: true })}>Alert</button>
+          <SweetAlert
+            show={this.state.showError}
+            // title="Demo"
+            type= "warning"
+            confirmButtonColor="#2167ac"
+            animation="true"
+            text={this.state.errorMessage}
+            onConfirm={() => this.setState({ showError: false })}
+          />
+          {/* ///////////////// Sweet Alerts //////////////////////////////////// */}
       </div>
     );
   }

@@ -195,7 +195,7 @@ class PortController2 extends Controller
 
     public function patientsList($id)
     {   
-        $patientslist = Portbookappointment::where('port_id', '=', $id)->paginate(10);
+        $patientslist = Portbookappointment::where([['port_id', $id], ['status','!=', 1]])->paginate(10);
 
         // return $result;
         $response = ['success'=>true, 'data'=>$patientslist];
@@ -685,7 +685,7 @@ class PortController2 extends Controller
     {   
         $status = 1;
         $appointment = Portbookappointment::where([['patient_id', $patient_id], ['port_id', $port_id], ['id', $appointment_id]])->get()->first();
-        $appointment->status = 2;
+        $appointment->status = 3;
         $appointment->save();
 
         $appointmentPayment = Portbookappointmentpayment::where([['patient_id', $patient_id], ['port_id', $port_id], ['appointment_id', $appointment_id]])->get()->first();

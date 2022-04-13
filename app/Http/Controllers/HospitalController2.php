@@ -177,14 +177,14 @@ class HospitalController2 extends Controller
         return response()->json($response, 201);
     }
 
-    public function patientsList($id)
-    {   
-        $patientslist = Patientslist::where('doc_airport_id', '=', $id)->paginate(10);
+    // public function patientsList($id)
+    // {   
+    //     $patientslist = Patientslist::where('doc_airport_id', '=', $id)->paginate(10);
 
-        // return $result;
-        $response = ['success'=>true, 'data'=>$patientslist];
-        return response()->json($response, 201);
-    }
+    //     // return $result;
+    //     $response = ['success'=>true, 'data'=>$patientslist];
+    //     return response()->json($response, 201);
+    // }
 
     public function updateMedHis(Request $request, $id)
     {   
@@ -376,10 +376,15 @@ class HospitalController2 extends Controller
     public function listDoctors($hospital_id)
     {   
         $doctorsList = Doctors::where('hospital', '=', $hospital_id)->paginate(10);
-
-        // return $result;
-        $response = ['success'=>true, 'data'=>$doctorsList];
-        return response()->json($response, 201);
+        if($doctorsList){
+            // return $result;
+            $response = ['success'=>true, 'data'=>$doctorsList];
+            return response()->json($response, 201);
+        }else{
+            // return $result;
+            $response = ['success'=>false, 'data'=>"No doctor yet"];
+            return response()->json($response, 201);
+        }
     }
 
     public function account($id)
